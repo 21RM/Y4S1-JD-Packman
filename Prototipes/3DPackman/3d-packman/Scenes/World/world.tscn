@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://boxhl1fbfuxu"]
+
+[ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
+[ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t1gg8"]
+size = Vector3(50, 1, 50)
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_yp2ti")
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_e2bkl")
+
+[node name="FloorColision" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_t1gg8")
+
+[node name="Packman" parent="." instance=ExtResource("1_t1gg8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="WorldCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.17364822, 0.9848077, 0, -0.9848077, 0.17364822, 0, 30, 5)
+
+[node name="TopDownDebugLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 0)
