@@ -2,6 +2,7 @@ extends Node3D
 
 @export_category("Scenes")
 @export var wall_scene: PackedScene
+@export var ghost_scene: PackedScene
 
 @export_category("World Config")
 @export var game_seed: int = 0
@@ -22,6 +23,7 @@ func _ready() -> void:
 	
 	UtilsGrid.build_grid(rng)
 	instantiate_walls()
+	instantiate_ghosts()
 	position_player()
 	position_ghosts()
 	
@@ -48,6 +50,10 @@ func instantiate_walls() -> void:
 				wall.position = Vector3(wall_x, wall_height/2, wall_z)
 				$Walls.add_child(wall)
 
+func instantiate_ghosts() -> void:
+	var ghost: Area3D = ghost_scene.instantiate()
+	ghost.ghost_type = 0
+	$Ghosts.add_child(ghost)
 
 func position_player() -> void:
 	var spawn_cell: Vector2i = UtilsGrid.player_spawn.position + UtilsGrid.player_spawn.size/2

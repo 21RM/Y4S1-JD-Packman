@@ -3,8 +3,8 @@ extends Node
 var grid: PackedByteArray
 var grid_origin: Vector3
 var cell_size: float = 1.0
-var grid_size_x: int = 25
-var grid_size_z: int = 25
+var grid_size_x: int = 35
+var grid_size_z: int = 35
 
 var player_spawn: Rect2i = Rect2i(12, 8, 5, 5)
 var ghosts_spawn: Rect2i = Rect2i(12, 16, 5, 5)
