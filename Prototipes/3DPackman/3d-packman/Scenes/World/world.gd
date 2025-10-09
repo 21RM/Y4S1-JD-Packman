@@ -63,23 +63,23 @@ func instantiate_ghosts() -> void:
 	if time_elapsed >= 0.0 and $Ghosts.get_child_count() == 0:
 		var blinky: Area3D = ghost_scene.instantiate()
 		blinky.set_ghost_type(1)
-		blinky.global_position = ghosts_spawn
 		$Ghosts.add_child(blinky)
+		blinky.global_position = ghosts_spawn
 	if time_elapsed >= 5.0 and $Ghosts.get_child_count() == 1:
 		var pinky: Area3D = ghost_scene.instantiate()
 		pinky.set_ghost_type(2)
-		pinky.global_position = ghosts_spawn
 		$Ghosts.add_child(pinky)
+		pinky.global_position = ghosts_spawn
 	if time_elapsed >= 10.0 and $Ghosts.get_child_count() == 2:
 		var inky: Area3D = ghost_scene.instantiate()
 		inky.set_ghost_type(3)
-		inky.global_position = ghosts_spawn
 		$Ghosts.add_child(inky)
+		inky.global_position = ghosts_spawn
 	if time_elapsed >= 15.0 and $Ghosts.get_child_count() == 3:
 		var clyde: Area3D = ghost_scene.instantiate()
 		clyde.set_ghost_type(4)
-		clyde.global_position = ghosts_spawn
 		$Ghosts.add_child(clyde)
+		clyde.global_position = ghosts_spawn
 
 
 func position_player() -> void:
@@ -113,11 +113,9 @@ func _on_game_tick() -> void:
 		match ghost.state:
 			Ghost.GhostState.SCATTER:
 				if ghost.time_in_mode >= min_time_scatter and randf() < base_prob_chase:
-					print("changed to chase")
 					ghost.state = Ghost.GhostState.CHASE
 					ghost.time_in_mode = 0.0
 			Ghost.GhostState.CHASE:
 				if ghost.time_in_mode >= min_time_chase and randf() < base_prob_scatter:
-					print("changed to scatter")
 					ghost.state = Ghost.GhostState.SCATTER
 					ghost.time_in_mode = 0.0
