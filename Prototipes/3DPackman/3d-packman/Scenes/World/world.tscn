@@ -20,6 +20,9 @@ script = ExtResource("1_yp2ti")
 wall_scene = ExtResource("2_3rhlx")
 ghost_scene = ExtResource("3_vadfg")
 
+[node name="GameTicker" type="Timer" parent="."]
+autostart = true
+
 [node name="Ceiling" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
 visible = false
@@ -51,3 +54,5 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3
 
 [node name="TopDownDebugLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 0)
+
+[connection signal="timeout" from="GameTicker" to="." method="_on_game_tick"]

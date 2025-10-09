@@ -6,8 +6,8 @@ var cell_size: float = 1.0
 var grid_size_x: int = 35
 var grid_size_z: int = 35
 
-var player_spawn: Rect2i = Rect2i(12, 8, 5, 5)
-var ghosts_spawn: Rect2i = Rect2i(12, 16, 5, 5)
+var player_spawn: Rect2i = Rect2i(15, 8, 5, 5)
+var ghosts_spawn: Rect2i = Rect2i(15, 25, 5, 5)
 
 var wall_density: float = 0.7
 
@@ -25,27 +25,42 @@ func _ready() -> void:
 	add_reserved_rect(player_spawn)
 	add_reserved_rect(ghosts_spawn)
 	reserved_rules.append(is_container_cells)
+	reserved_rules.append(is_corner_cells)
+
+
 
 func cell_to_world(cell: Vector2i) -> Vector3:
 	return grid_origin + Vector3(cell.x*cell_size, 0, cell.y*cell_size)
+
+
 
 func world_to_cell(world_pos: Vector3) -> Vector2i:
 	var rel: Vector3 = world_pos - grid_origin
 	return Vector2i(round(rel.x / cell_size), round(rel.z / cell_size))
 
+
+
 func cell_walkable(cell: Vector2i) -> bool:
 	return in_bounds(cell.x, cell.y) and grid[idx(cell.x, cell.y)] == 0
+
+
 
 func in_bounds(x: int, z: int) -> bool:
 	return x >= 0 and x < grid_size_x and z >= 0 and z < grid_size_z
 
+
+
 func idx(x: int, z: int) -> int:
 	return z*grid_size_x + x
+
+
 
 func add_reserved_rect(rect: Rect2i) -> void:
 	for x in range(rect.position.x, rect.position.x + rect.size.x):
 		for z in range(rect.position.y, rect.position.y + rect.size.y):
 			reserved_cells.append(Vector2i(x, z))
+
+
 
 func is_reserved(x:int, z:int) -> bool:
 	var cell: Vector2i = Vector2i(x, z)
@@ -56,10 +71,16 @@ func is_reserved(x:int, z:int) -> bool:
 			return true
 	return false
 
+
+
 func build_grid(rng: RandomNumberGenerator) -> void:
 	start_grid()
 	carve_connectivity(rng)
 	add_extra_loops(rng)
+	ensure_room_openings()
+	connect_corners_to_maze() 
+
+
 
 func start_grid() -> void:
 	grid = PackedByteArray()
@@ -67,23 +88,23 @@ func start_grid() -> void:
 	for i in range(grid.size()):
 		grid[i] = 1
 	for x in range(grid_size_x):
-		grid[idx(x, 0)] = 1
-		grid[idx(x, grid_size_z - 1)] = 1
-	for z in range(grid_size_z):
-		grid[idx(0, z)] = 1
-		grid[idx(grid_size_x - 1, z)] = 1
-	
+		for z in range(grid_size_z):
+			if is_corner_cells(Vector2i(x, z)):
+				grid[idx(x, z)] = 0
 	carve_room(player_spawn, 0)
 	carve_room(ghosts_spawn, 0)
 
+
+
 func carve_connectivity(rng: RandomNumberGenerator) -> void:
 	var start: Vector2i = pick_random_odd_cell(rng)
+	start= Vector2i(33, 23)
 	if start == Vector2i(-1, -1):
 		return
 	
 	var active: Array[Vector2i] = []
 	var last_dir: Dictionary = {}
-	set_corridor(start)
+	set_floor(start.x, start.y)
 	active.append(start)
 	
 	while active.size() > 0:
@@ -123,8 +144,6 @@ func carve_connectivity(rng: RandomNumberGenerator) -> void:
 			active.pop_back()
 
 
-func set_corridor(cell: Vector2i) -> void:
-	set_floor(cell.x, cell.y)
 
 func pick_random_odd_cell(rng: RandomNumberGenerator) -> Vector2i:
 	var candidates: Array[Vector2i] = []
@@ -142,7 +161,7 @@ func is_carvable(cell: Vector2i) -> bool:
 
 func can_carve(cell: Vector2i, dir: Vector2i) -> bool:
 	var to_cell: Vector2i = cell + dir
-	var mid_cell: Vector2i = Vector2i((cell.x + dir.x)/2, (cell.y + dir.y)/2)
+	var mid_cell: Vector2i = Vector2i(cell.x + dir.x/2, cell.y + dir.y/2)
 	if !is_carvable(to_cell) or !is_carvable(mid_cell) or grid[idx(to_cell.x, to_cell.y)]!=1:
 		return false
 	return true
@@ -169,6 +188,74 @@ func add_extra_loops(rng: RandomNumberGenerator) -> void:
 		var cell: Vector2i = candidates[i]
 		set_floor(cell.x, cell.y)
 
+func ensure_room_openings() -> void:
+	var reference: Vector2i = player_spawn.position + player_spawn.size/2
+	var rooms: Array = [player_spawn, ghosts_spawn]
+	for room in rooms:
+		var room_center: Vector2i = room.position + room.size/2
+		if not bfs_exists(room_center, reference):
+			ensure_path_between(room_center, reference)
+
+func ensure_path_between(start: Vector2i, end: Vector2i) -> void:
+	var cell: Vector2i = start
+	var guard: int = 0
+	while cell != end and guard < 1000:
+		guard += 1
+		var step: Vector2i = Vector2i.ZERO
+		if cell.x != end.x:
+			step.x = (1 if end.x > cell.x else -1)
+		elif cell.y != end.y:
+			step.y = (1 if end.y > cell.y else -1)
+		var next: Vector2i = cell + step
+		if is_reserved(next.x, next.y):
+			var detours: Array[Vector2i] = [Vector2i(step.y, step.x), Vector2i(-step.y, -step.x)]
+			var carved: bool = false
+			for d in detours:
+				var alt: Vector2i = cell + d
+				if in_bounds(alt.x, alt.y) and not is_reserved(alt.x, alt.y):
+					set_floor(alt.x, alt.y)
+					cell = alt
+					carved = true
+					break
+			if not carved:
+				set_floor(next.x, next.y)
+				cell = next
+		else:
+			set_floor(next.x, next.y)
+			cell = next
+
+func bfs_exists(start: Vector2i, goal: Vector2i) -> bool:
+	var queue: Array[Vector2i] = [start]
+	var seen: Dictionary = {start: true}
+	var dirs: Array[Vector2i] = [Vector2i(0,-1), Vector2i(1,0), Vector2i(0,1), Vector2i(-1,0)]
+	
+	while queue.size() > 0:
+		var cell: Vector2i = queue.pop_front()
+		if cell == goal:
+			return true
+		for d in dirs:
+			var next_cell: Vector2i = cell + d
+			if not in_bounds(next_cell.x, next_cell.y):
+				continue
+			if grid[idx(next_cell.x, next_cell.y)] != 0:
+				continue
+			if not seen.has(next_cell):
+				seen[next_cell] = true
+				queue.append(next_cell)
+	
+	return false
+
+func connect_corners_to_maze() -> void:
+	var reference: Vector2i = player_spawn.position + player_spawn.size/2
+	var corner_cells: Array[Vector2i] = [
+		Vector2i(1, 1),
+		Vector2i(grid_size_x - 2, 1),
+		Vector2i(1, grid_size_z - 2),
+		Vector2i(grid_size_x - 2, grid_size_z - 2),
+	]
+	for cell in corner_cells:
+		if not bfs_exists(cell, reference):
+			ensure_path_between(cell, reference)
 
 func carve_room(rect: Rect2i, door_side: int = -1) -> void:
 	var px: int = rect.position.x
@@ -191,20 +278,12 @@ func carve_room(rect: Rect2i, door_side: int = -1) -> void:
 		match door_side:
 			0: 
 				set_floor(px+sx/2, pz) # top
-				grid[idx(px+sx/2, pz-1)] = 0
-				reserved_cells.append(Vector2i(px+sx/2, pz-1))
 			1: 
 				set_floor(px+sx-1, pz+sz/2) # right
-				grid[idx(px+sx, pz+sz/2)] = 0
-				reserved_cells.append(Vector2i(px+sx, pz+sz/2))
 			2: 
 				set_floor(px+sx/2, pz+sz-1) # bottom
-				grid[idx(px+sx/2, pz+sz)] = 0
-				reserved_cells.append(Vector2i(px+sx/2, pz+sz))
 			3: 
 				set_floor(px, pz+sz/2) # left
-				grid[idx(px-1, pz+sz/2)] = 0
-				reserved_cells.append(Vector2i(px-1, pz+sz/2))
 
 func set_wall(x: int, z: int) -> void:
 	if in_bounds(x, z):
@@ -226,3 +305,6 @@ func shuffle_dirs(rng: RandomNumberGenerator, dirs: Array[Vector2i]) -> void:
 '''
 func is_container_cells(cell: Vector2i) -> bool:
 	return cell.x == 0 or cell.x == grid_size_x - 1 or cell.y == 0 or cell.y == grid_size_z - 1
+
+func is_corner_cells(cell: Vector2i) -> bool:
+	return (cell.x == 1 or cell.x == grid_size_x - 2) and (cell.y == 1 or cell.y == grid_size_z - 2)

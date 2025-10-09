@@ -1,11 +1,13 @@
 extends Area3D
+class_name Ghost
 
 var ghost_type: int = 0
 enum GhostState { SCATTER, CHASE, RUN }
 
-var state: GhostState = GhostState.CHASE
+var state: GhostState = GhostState.SCATTER
+var time_in_mode: float = 0.0
 
-var speed: float = 2.0
+var speed: float = 2.1
 
 var path: Array[Vector2i] = []
 var path_index: int = 0
@@ -21,8 +23,25 @@ var current_cell: Vector2i
 
 
 
+func set_ghost_type(type: int) -> void:
+	ghost_type = type
+	# Change Later
+	var color: Color = Color(1, 0, 0)
+	match ghost_type:
+		1: color = Color(1, 0, 0)
+		2: color = Color(1, 0.6, 1)
+		3: color = Color(0, 1, 1)
+		4: color = Color(1.0, 0.5, 0.0)
+		_: color = Color(0, 0, 0)
+	var mat: StandardMaterial3D = StandardMaterial3D.new()
+	mat.albedo_color =  color
+	$MeshInstance3D.set_surface_override_material(0, mat)
+
 func _physics_process(delta: float) -> void:
 	current_cell = UtilsGrid.world_to_cell(global_position)
+	if current_cell == get_corner_cell() and state == GhostState.SCATTER:
+		state = GhostState.CHASE
+		time_in_mode = 0.0
 	var target_cell: Vector2i = compute_target_cell()
 	var packman_cell: Vector2i = UtilsPackman.packman.current_cell
 	# Testing if it needs replan
@@ -50,7 +69,6 @@ func _physics_process(delta: float) -> void:
 
 func follow_path(delta) -> void:
 	if path.is_empty() or path_index >= path.size():
-		#print("Path is empty or index out of bounds: \n", path, "\nPath index: ", path_index)
 		return
 	
 	var current_center: Vector3 = UtilsGrid.cell_to_world(current_cell)
@@ -158,7 +176,17 @@ func reconstruct_path(came_from: Dictionary, current: Vector2i, start: Vector2i)
 
 
 func get_corner_cell() -> Vector2i:
-	return Vector2i(1, 1)
+	match ghost_type:
+		1: # Blinky
+			return Vector2i(UtilsGrid.grid_size_x-2, 1)
+		2: # Pinky
+			return Vector2i(1, 1)
+		3: # Inky
+			return Vector2i(UtilsGrid.grid_size_x-2, UtilsGrid.grid_size_z-2)
+		4: # Clyde
+			return Vector2i(1, UtilsGrid.grid_size_z-2)
+		_:
+			return Vector2i(1, 1)
 
 
 

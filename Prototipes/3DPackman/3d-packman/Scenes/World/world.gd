@@ -10,6 +10,15 @@ extends Node3D
 
 @export_category("Enemies")
 @export var ghosts_height: float = 1.0
+var ghosts_spawn: Vector3 = Vector3.ZERO
+var prob_scatter: float = 0.10
+var prob_chase: float = 0.10
+var change_chase_bias: float = 0.002
+var prob_min: float = 0.05
+var prob_max: float = 0.95
+var min_time_scatter: float = 10.0
+var min_time_chase: float = 15.0
+var time_elapsed: float = 0.0
 
 var rng: RandomNumberGenerator
 
@@ -23,9 +32,9 @@ func _ready() -> void:
 	
 	UtilsGrid.build_grid(rng)
 	instantiate_walls()
+	ghosts_spawn = get_ghosts_spawn()
 	instantiate_ghosts()
 	position_player()
-	position_ghosts()
 	
 	UtilsPackman.packman = $Packman
 
@@ -51,19 +60,36 @@ func instantiate_walls() -> void:
 				$Walls.add_child(wall)
 
 func instantiate_ghosts() -> void:
-	var ghost: Area3D = ghost_scene.instantiate()
-	ghost.ghost_type = 0
-	$Ghosts.add_child(ghost)
+	if time_elapsed >= 0.0 and $Ghosts.get_child_count() == 0:
+		var blinky: Area3D = ghost_scene.instantiate()
+		blinky.set_ghost_type(1)
+		blinky.global_position = ghosts_spawn
+		$Ghosts.add_child(blinky)
+	if time_elapsed >= 5.0 and $Ghosts.get_child_count() == 1:
+		var pinky: Area3D = ghost_scene.instantiate()
+		pinky.set_ghost_type(2)
+		pinky.global_position = ghosts_spawn
+		$Ghosts.add_child(pinky)
+	if time_elapsed >= 10.0 and $Ghosts.get_child_count() == 2:
+		var inky: Area3D = ghost_scene.instantiate()
+		inky.set_ghost_type(3)
+		inky.global_position = ghosts_spawn
+		$Ghosts.add_child(inky)
+	if time_elapsed >= 15.0 and $Ghosts.get_child_count() == 3:
+		var clyde: Area3D = ghost_scene.instantiate()
+		clyde.set_ghost_type(4)
+		clyde.global_position = ghosts_spawn
+		$Ghosts.add_child(clyde)
+
 
 func position_player() -> void:
 	var spawn_cell: Vector2i = UtilsGrid.player_spawn.position + UtilsGrid.player_spawn.size/2
 	$Packman.global_position = UtilsGrid.cell_to_world(spawn_cell)
 
-func position_ghosts() -> void:
+func get_ghosts_spawn() -> Vector3:
 	var spawn_cell: Vector2i = UtilsGrid.ghosts_spawn.position + UtilsGrid.ghosts_spawn.size/2
-	for ghost in $Ghosts.get_children():
-		ghost.global_position =  UtilsGrid.cell_to_world(spawn_cell)
-		ghost.global_position.y = ghosts_height
+	return Vector3(UtilsGrid.cell_to_world(spawn_cell).x, ghosts_height, UtilsGrid.cell_to_world(spawn_cell).z)
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("toggle_camera"):
@@ -71,3 +97,27 @@ func _unhandled_input(event: InputEvent) -> void:
 			$Packman.activate_camera()
 		else:
 			$WorldCamera.current = true
+
+
+func _on_game_tick() -> void:
+	time_elapsed += $GameTicker.wait_time
+	instantiate_ghosts()
+	var base_prob_scatter: float = clamp(prob_scatter - change_chase_bias * time_elapsed, prob_min, prob_max)
+	var base_prob_chase: float = clamp(prob_chase + change_chase_bias * time_elapsed, prob_min, prob_max)
+	var sum_prob: float = base_prob_scatter + base_prob_chase
+	if sum_prob > 1.0:
+		base_prob_scatter /= sum_prob
+		base_prob_chase /= sum_prob
+	for ghost in $Ghosts.get_children():
+		ghost.time_in_mode += $GameTicker.wait_time
+		match ghost.state:
+			Ghost.GhostState.SCATTER:
+				if ghost.time_in_mode >= min_time_scatter and randf() < base_prob_chase:
+					print("changed to chase")
+					ghost.state = Ghost.GhostState.CHASE
+					ghost.time_in_mode = 0.0
+			Ghost.GhostState.CHASE:
+				if ghost.time_in_mode >= min_time_chase and randf() < base_prob_scatter:
+					print("changed to scatter")
+					ghost.state = Ghost.GhostState.SCATTER
+					ghost.time_in_mode = 0.0
