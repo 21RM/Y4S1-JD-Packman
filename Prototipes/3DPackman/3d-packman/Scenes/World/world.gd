@@ -3,6 +3,7 @@ extends Node3D
 @export_category("Scenes")
 @export var wall_scene: PackedScene
 @export var ghost_scene: PackedScene
+@export var dot_scene: PackedScene
 
 @export_category("World Config")
 @export var game_seed: int = 0
@@ -34,6 +35,7 @@ func _ready() -> void:
 	instantiate_walls()
 	ghosts_spawn = get_ghosts_spawn()
 	instantiate_ghosts()
+	instantiate_dots()
 	position_player()
 	
 	UtilsPackman.packman = $Packman
@@ -58,6 +60,26 @@ func instantiate_walls() -> void:
 				var wall_z: float = (z*UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size*0.5
 				wall.position = Vector3(wall_x, wall_height/2, wall_z)
 				$Walls.add_child(wall)
+
+func instantiate_dots() -> void:
+	for child in $Dots.get_children():
+		child.queue_free()
+
+	var x_offset = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
+	var z_offset = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
+
+	for x in range(UtilsGrid.grid_size_x):
+		for z in range(UtilsGrid.grid_size_z):
+			if UtilsGrid.grid[UtilsGrid.idx(x, z)] == 0:
+				var dot = dot_scene.instantiate()
+				var dot_x = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
+				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
+				dot.position = Vector3(dot_x, 0.2, dot_z)
+				$Dots.add_child(dot)
+
+
+
+
 
 func instantiate_ghosts() -> void:
 	if time_elapsed >= 0.0 and $Ghosts.get_child_count() == 0:
