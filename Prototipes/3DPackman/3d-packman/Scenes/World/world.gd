@@ -70,6 +70,12 @@ func instantiate_dots() -> void:
 
 	for x in range(UtilsGrid.grid_size_x):
 		for z in range(UtilsGrid.grid_size_z):
+			if UtilsGrid.grid[UtilsGrid.idx(x, z)] != 0: # s
+				continue
+			
+			if UtilsGrid.is_reserved(x, z):
+				continue
+			
 			if UtilsGrid.grid[UtilsGrid.idx(x, z)] == 0:
 				var dot = dot_scene.instantiate()
 				var dot_x = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
