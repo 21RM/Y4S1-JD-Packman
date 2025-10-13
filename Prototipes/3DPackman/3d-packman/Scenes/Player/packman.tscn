@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://h7v7qnvnf582" path="res://Scenes/Player/packman.gd" id="1_jn0p0"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jn0p0"]
-albedo_color = Color(1, 0, 0, 1)
+albedo_color = Color(1, 1, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_8xp7a"]
 
@@ -29,7 +29,7 @@ shape = SubResource("CapsuleShape3D_jn0p0")
 
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)
-fov = 120.0
+fov = 100.0
 
 [node name="Head" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.22)

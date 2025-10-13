@@ -38,13 +38,13 @@ func _physics_process(delta: float) -> void:
 	# Movement validation
 	if at_center and queued_dir != Vector2i.ZERO and turn_still_valid():
 		var next_cell: Vector2i = current_cell + queued_dir
-		if UtilsGrid.cell_walkable(next_cell):
+		if UtilsGrid.can_walk_to_neighbor_cell(current_cell, next_cell):
 			dir = queued_dir
 			queued_dir = Vector2i.ZERO
 			
 	
 	var forward_cell: Vector2i = current_cell + dir
-	var can_move_forward: bool = UtilsGrid.cell_walkable(forward_cell)
+	var can_move_forward: bool = UtilsGrid.can_walk_to_neighbor_cell(current_cell, forward_cell)
 	if at_center and not can_move_forward:
 		velocity.x = 0.0
 		velocity.z = 0.0

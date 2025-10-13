@@ -1,12 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://boxhl1fbfuxu"]
+[gd_scene load_steps=9 format=3 uid="uid://boxhl1fbfuxu"]
 
 [ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
 [ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
 [ext_resource type="PackedScene" uid="uid://c8u0fmfaices7" path="res://Scenes/World/Walls/wall.tscn" id="2_3rhlx"]
 [ext_resource type="PackedScene" uid="uid://dw73d6bs83wdf" path="res://Scenes/Ghost/ghost.tscn" id="3_vadfg"]
+[ext_resource type="PackedScene" uid="uid://dljml16cjj0v8" path="res://Scenes/Dot/dot.tscn" id="4_l1hd3"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vadfg"]
-albedo_color = Color(0, 0.1083963, 0.2249439, 1)
+albedo_color = Color(0, 0, 0, 1)
+metallic_specular = 0.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
 material = SubResource("StandardMaterial3D_vadfg")
@@ -19,6 +21,7 @@ size = Vector3(50, 1, 50)
 script = ExtResource("1_yp2ti")
 wall_scene = ExtResource("2_3rhlx")
 ghost_scene = ExtResource("3_vadfg")
+dot_scene = ExtResource("4_l1hd3")
 
 [node name="GameTicker" type="Timer" parent="."]
 autostart = true
@@ -54,5 +57,7 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3
 
 [node name="TopDownDebugLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 0)
+
+[node name="Dots" type="Node3D" parent="."]
 
 [connection signal="timeout" from="GameTicker" to="." method="_on_game_tick"]
