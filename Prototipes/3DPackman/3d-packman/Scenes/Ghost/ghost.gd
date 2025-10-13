@@ -44,6 +44,8 @@ func _physics_process(delta: float) -> void:
 		time_in_mode = 0.0
 	var target_cell: Vector2i = compute_target_cell()
 	var packman_cell: Vector2i = UtilsPackman.packman.current_cell
+	var current_center: Vector3 = UtilsGrid.cell_to_world(current_cell)
+	var at_center: bool = Vector2(global_position.x - current_center.x, global_position.z - current_center.z).length() <= center_snap_eps
 	# Testing if it needs replan
 	var need_replan: bool = false
 	if path.is_empty():
@@ -60,7 +62,7 @@ func _physics_process(delta: float) -> void:
 			time_since_repath = 0.0
 			need_replan = true
 	
-	if need_replan:
+	if need_replan and at_center:
 		replan(current_cell, target_cell)
 	
 	follow_path(delta)
@@ -112,11 +114,36 @@ func replan(start_cell: Vector2i, goal_cell: Vector2i) -> void:
 
 
 func compute_target_cell() -> Vector2i:
-	if state == GhostState.CHASE:
-		return UtilsPackman.packman.current_cell
-	else:
+	if state == GhostState.SCATTER:
 		return get_corner_cell()
+	else:
+		match ghost_type:
+			1: # Blinky, directly chases
+				return UtilsPackman.packman.current_cell
+			2: # Pinky, ambushes ahead
+				var ahead: Vector2i = packman_ahead(6)
+				return ahead
+			_:
+				return UtilsPackman.packman.current_cell
 
+
+
+func packman_ahead(n: int) -> Vector2i:
+	var packman_cell: Vector2i = UtilsPackman.packman.current_cell
+	var packman_dir: Vector2i = UtilsPackman.packman.dir
+	var last_cell: Vector2i = packman_cell
+	for i in range(n):
+		var next_cell: Vector2i = last_cell+packman_dir
+		if UtilsGrid.cell_walkable(next_cell):
+			last_cell = next_cell
+		else:
+			break
+	return last_cell
+
+func clamp_to_grid(cell: Vector2i) -> Vector2i:
+	var cx: int = clamp(cell.x, 0, UtilsGrid.grid_size_x - 1)
+	var cy: int  = clamp(cell.y, 0, UtilsGrid.grid_size_z - 1)
+	return Vector2i(cx, cy)
 
 
 func manhattan(start: Vector2i, end: Vector2i) -> float:
