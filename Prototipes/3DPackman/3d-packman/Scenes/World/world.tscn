@@ -6,7 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://dw73d6bs83wdf" path="res://Scenes/Ghost/ghost.tscn" id="3_vadfg"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vadfg"]
-albedo_color = Color(0, 0.1083963, 0.2249439, 1)
+albedo_color = Color(0, 0, 0, 1)
+metallic_specular = 0.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
 material = SubResource("StandardMaterial3D_vadfg")

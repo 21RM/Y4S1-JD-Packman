@@ -8,6 +8,7 @@ var grid_size_z: int = 35
 
 var player_spawn: Rect2i = Rect2i(15, 8, 5, 5)
 var ghosts_spawn: Rect2i = Rect2i(15, 25, 5, 5)
+var ghost_spawn_room_door: Vector2i = Vector2i.ZERO
 
 var wall_density: float = 0.7
 
@@ -48,6 +49,19 @@ func cell_walkable(cell: Vector2i) -> bool:
 func in_bounds(x: int, z: int) -> bool:
 	return x >= 0 and x < grid_size_x and z >= 0 and z < grid_size_z
 
+func is_in_spawn_room(cell: Vector2i) -> bool:
+	var rooms: Array = [player_spawn, ghosts_spawn]
+	for room in rooms:
+		if room.has_point(cell):
+			return true
+	return false
+
+func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) -> bool:
+	if !cell_walkable(target_cell):
+		return false
+	if !is_in_spawn_room(current_cell) and is_in_spawn_room(target_cell):
+		return false
+	return true
 
 
 func idx(x: int, z: int) -> int:
@@ -278,12 +292,16 @@ func carve_room(rect: Rect2i, door_side: int = -1) -> void:
 		match door_side:
 			0: 
 				set_floor(px+sx/2, pz) # top
+				ghost_spawn_room_door = Vector2i(px+sx/2, pz - 1)
 			1: 
 				set_floor(px+sx-1, pz+sz/2) # right
+				ghost_spawn_room_door = Vector2i(px+sx, pz+sz/2)
 			2: 
 				set_floor(px+sx/2, pz+sz-1) # bottom
+				ghost_spawn_room_door = Vector2i(px+sx/2, pz+sz)
 			3: 
 				set_floor(px, pz+sz/2) # left
+				ghost_spawn_room_door = Vector2i(px-1, pz+sz/2)
 
 func set_wall(x: int, z: int) -> void:
 	if in_bounds(x, z):
