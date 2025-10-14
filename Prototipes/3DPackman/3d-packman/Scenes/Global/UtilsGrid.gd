@@ -13,7 +13,8 @@ var ghost_spawn_room_door: Vector2i = Vector2i.ZERO
 var wall_density: float = 0.7
 
 var reserved_rules: Array[Callable] = []
-var reserved_cells: Array
+var reserved_cells: Array[Vector2i]
+const DIRS: Array[Vector2i] = [Vector2i(0, -1),Vector2i(1, 0),Vector2i(0, 1),Vector2i(-1, 0)]
 
 # Maze generation:
 var straight_bias: float = 0.90

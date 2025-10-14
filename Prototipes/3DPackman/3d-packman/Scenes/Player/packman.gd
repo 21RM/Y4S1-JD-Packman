@@ -2,7 +2,7 @@ extends CharacterBody3D
 
 
 @export var moving_speed: float = 3.0
-@export var rotation_speed: float = 5.0
+@export var rotation_speed: float = 10.0
 @export var center_snap_eps: float = 0.04  
 @export var turn_buffer_sec: float = 0.5
 
@@ -13,7 +13,6 @@ var current_cell: Vector2i = Vector2i.ZERO
 # cell that packman is ocuppying right now
 var current_center: Vector3 = Vector3.ZERO
 # world position of the center of the cell packman is currently occupying
-
 
 
 func _physics_process(delta: float) -> void:
@@ -53,6 +52,8 @@ func _physics_process(delta: float) -> void:
 		velocity.z = dir.y * moving_speed
 	
 	var target_yaw: float = atan2(-dir.x, -dir.y)
+	if Input.is_action_pressed("look_back"):
+		target_yaw = atan2(-dir.x, -dir.y) + PI
 	rotation.y = lerp_angle(rotation.y, target_yaw, rotation_speed*delta)
 	
 	move_and_slide()

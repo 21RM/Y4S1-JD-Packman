@@ -35,3 +35,8 @@ fov = 100.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.22)
 material_override = SubResource("StandardMaterial3D_h277g")
 mesh = SubResource("SphereMesh_niiq6")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(0.9237858, 0.9505798, 0.7212385, 1)
+light_energy = 0.5
+omni_range = 4.0

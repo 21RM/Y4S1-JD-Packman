@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://boxhl1fbfuxu"]
+[gd_scene load_steps=10 format=3 uid="uid://boxhl1fbfuxu"]
 
 [ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
 [ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
@@ -17,6 +17,10 @@ size = Vector3(50, 1, 50)
 [sub_resource type="BoxShape3D" id="BoxShape3D_t1gg8"]
 size = Vector3(50, 1, 50)
 
+[sub_resource type="Environment" id="Environment_l1hd3"]
+ambient_light_source = 1
+glow_enabled = true
+
 [node name="World" type="Node3D"]
 script = ExtResource("1_yp2ti")
 wall_scene = ExtResource("2_3rhlx")
@@ -27,8 +31,7 @@ dot_scene = ExtResource("4_l1hd3")
 autostart = true
 
 [node name="Ceiling" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
 
 [node name="CeilingMesh" type="MeshInstance3D" parent="Ceiling"]
 mesh = SubResource("BoxMesh_e2bkl")
@@ -49,15 +52,15 @@ shape = SubResource("BoxShape3D_t1gg8")
 
 [node name="Ghosts" type="Node3D" parent="."]
 
+[node name="Dots" type="Node3D" parent="."]
+
 [node name="Packman" parent="." instance=ExtResource("1_t1gg8")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 1, 5)
 
 [node name="WorldCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 35, 0)
 
-[node name="TopDownDebugLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.70710677, 0.70710677, 0, -0.70710677, 0.70710677, 0, 5, 0)
-
-[node name="Dots" type="Node3D" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_l1hd3")
 
 [connection signal="timeout" from="GameTicker" to="." method="_on_game_tick"]

@@ -7,7 +7,6 @@ extends Node3D
 
 @export_category("World Config")
 @export var game_seed: int = 0
-@export var wall_height: float = 3.0
 
 @export_category("Enemies")
 @export var ghosts_height: float = 1.0
@@ -58,16 +57,19 @@ func instantiate_walls() -> void:
 				var wall: StaticBody3D = wall_scene.instantiate()
 				var wall_x: float = (x*UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size*0.5
 				var wall_z: float = (z*UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size*0.5
-				wall.position = Vector3(wall_x, wall_height/2, wall_z)
+				wall.position = Vector3(wall_x, 0, wall_z)
+				wall.build(Vector2i(x, z))
 				$Walls.add_child(wall)
+
+
 
 func instantiate_dots() -> void:
 	for child in $Dots.get_children():
 		child.queue_free()
-
+	
 	var x_offset = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
 	var z_offset = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
-
+	
 	for x in range(UtilsGrid.grid_size_x):
 		for z in range(UtilsGrid.grid_size_z):
 			if UtilsGrid.grid[UtilsGrid.idx(x, z)] != 0: # s
@@ -82,8 +84,6 @@ func instantiate_dots() -> void:
 				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				$Dots.add_child(dot)
-
-
 
 
 
