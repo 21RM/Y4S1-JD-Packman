@@ -31,4 +31,8 @@ transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, -0.18, 0.525, -0.33)
 mesh = SubResource("SphereMesh_vcqer")
 skeleton = NodePath("../Eye")
 
+[node name="FrightenedTimer" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="FrightenedTimer" to="." method="_on_frightened_timer_timeout"]

@@ -4,6 +4,7 @@ extends Node3D
 @export var wall_scene: PackedScene
 @export var ghost_scene: PackedScene
 @export var dot_scene: PackedScene
+@export var energizer_scene: PackedScene
 
 @export_category("World Config")
 @export var game_seed: int = 0
@@ -21,6 +22,14 @@ var min_time_scatter: float = 10.0
 var min_time_chase: float = 15.0
 var time_elapsed: float = 0.0
 
+var energizer_cells = [
+	Vector2i(1, 1),
+	Vector2i(1, UtilsGrid.grid_size_z - 2),
+	Vector2i(UtilsGrid.grid_size_x - 2, 1),
+	Vector2i(UtilsGrid.grid_size_x - 2, UtilsGrid.grid_size_z - 2)
+]
+
+
 var rng: RandomNumberGenerator
 
 
@@ -35,8 +44,12 @@ func _ready() -> void:
 	instantiate_walls()
 	ghosts_spawn = get_ghosts_spawn()
 	instantiate_ghosts()
+	instantiate_energizers()
 	instantiate_dots()
 	position_player()
+	
+	for energizer in get_tree().get_nodes_in_group("energizers"):
+		energizer.connect("collected", Callable(self, "_on_energizer_collected"))
 	
 	UtilsPackman.packman = $Packman
 
@@ -83,8 +96,29 @@ func instantiate_dots() -> void:
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				$Dots.add_child(dot)
 
+func instantiate_energizers() -> void:
+	for child in $Energizers.get_children():
+		child.queue_free()
 
+	var x_offset = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
+	var z_offset = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
 
+	var corner_cells = [
+		Vector2i(1, 1),
+		Vector2i(1, UtilsGrid.grid_size_z - 2),
+		Vector2i(UtilsGrid.grid_size_x - 2, 1),
+		Vector2i(UtilsGrid.grid_size_x - 2, UtilsGrid.grid_size_z - 2)
+	]
+	
+	for cell in corner_cells:
+		var x = cell.x
+		var z = cell.y
+		var energizer = energizer_scene.instantiate()
+		var energizer_x = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
+		var energizer_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
+		energizer.position = Vector3(energizer_x, 0.2, energizer_z)
+		energizer.connect("collected", _on_energizer_collected)
+		$Energizers.add_child(energizer)
 
 
 func instantiate_ghosts() -> void:
@@ -122,6 +156,10 @@ func get_ghosts_spawn() -> Vector3:
 	var spawn_cell: Vector2i = UtilsGrid.ghosts_spawn.position + UtilsGrid.ghosts_spawn.size/2
 	return Vector3(UtilsGrid.cell_to_world(spawn_cell).x, ghosts_height, UtilsGrid.cell_to_world(spawn_cell).z)
 
+func _on_energizer_collected(duration: float):
+	print("ENERGIZER COLLECTED")
+	for ghost in $Ghosts.get_children():
+		ghost.become_frightened(duration)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("toggle_camera"):
