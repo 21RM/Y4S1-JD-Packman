@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://cnjpvs2q6luga"]
+
+[ext_resource type="Script" uid="uid://b7rpdhowlh0qf" path="res://Scenes/Energizer/energizer.gd" id="1_6nxpg"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6nxpg"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_6nxpg"]
+
+[node name="Energizer" type="Area3D"]
+script = ExtResource("1_6nxpg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_6nxpg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 1, 0)
+mesh = SubResource("SphereMesh_6nxpg")

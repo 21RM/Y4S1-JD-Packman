@@ -29,4 +29,8 @@ shadow_bias = 0.05
 shadow_normal_bias = 2.0
 shadow_blur = 2.0
 
+[node name="FrightenedTimer" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="FrightenedTimer" to="." method="_on_frightened_timer_timeout"]

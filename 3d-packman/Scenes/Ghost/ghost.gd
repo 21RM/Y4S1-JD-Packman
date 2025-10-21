@@ -2,12 +2,13 @@ extends Area3D
 class_name Ghost
 
 var ghost_type: int = 0
-enum GhostState { SCATTER, CHASE, RUN }
+enum GhostState { SCATTER, CHASE, FRIGHTENED, EATEN }
 
 var state: GhostState = GhostState.SCATTER
 var time_in_mode: float = 0.0
 
-var speed: float = 2.5
+const base_speed: float = 2.5
+var speed: float = base_speed
 var rotation_speed: float = 5.0
 var float_t: float = 0
 var float_frequency: float = 3
@@ -21,11 +22,47 @@ const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.DOWN, Vector
 var current_cell: Vector2i
 var next_cell: Vector2i
 
+
 @export var blinky_model: PackedScene
 @export var pinky_model: PackedScene
 @export var inky_model: PackedScene
 @export var clyde_model: PackedScene
 
+
+func become_frightened(duration: float):
+	match ghost_type:
+		1:
+			print("Blinky frightened!")
+		2:
+			print("Pinky frightened!")
+		3:
+			print("Inky frightened!")
+		4:
+			print("Clyde frightened!")
+	
+	if state == GhostState.EATEN:
+		return
+	state = GhostState.FRIGHTENED
+	speed = base_speed * 0.7
+	dir = -dir
+	$FrightenedTimer.start(duration)
+
+func _on_frightened_timer_timeout() -> void:
+	state = GhostState.CHASE
+	speed = base_speed
+	_set_frightened_appearance(false)
+
+func _set_frightened_appearance(frightened: bool):
+	var mesh = get_node_or_null("MeshInstance3D")
+	if mesh and mesh.material_override:
+		var mat := mesh.material_override as StandardMaterial3D
+		if frightened:
+			mat.albedo_color = Color(0.2, 0.2, 1.0)
+			mat.emission_enabled = true
+			mat.emission = Color(0.2, 0.2, 1.0)
+		else:
+			mat.albedo_color = Color(1, 1, 1)
+			mat.emission_enabled = false
 
 
 func set_ghost_type(type: int) -> void:
@@ -114,6 +151,22 @@ func compute_target_cell() -> Vector2i:
 		return UtilsGrid.ghost_spawn_room_door
 	if state == GhostState.SCATTER:
 		return get_corner_cell()
+	
+	elif state == GhostState.FRIGHTENED:
+		var possible_cells: Array = []
+		for d in DIRS:
+			var test_cell: Vector2i = current_cell + d
+			if UtilsGrid.can_walk_to_neighbor_cell(current_cell, test_cell):
+				# Avoid going directly back unless trapped
+				if d != -dir or possible_cells.is_empty():
+					possible_cells.append(test_cell)
+		
+		if possible_cells.is_empty():
+			return current_cell  # stuck, stay in place
+		
+		return possible_cells[randi() % possible_cells.size()]
+
+	
 	else:
 		match ghost_type:
 			1: # Blinky, directly chases
