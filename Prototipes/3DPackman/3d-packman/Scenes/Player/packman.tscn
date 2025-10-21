@@ -39,4 +39,8 @@ mesh = SubResource("SphereMesh_niiq6")
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 light_color = Color(0.9237858, 0.9505798, 0.7212385, 1)
 light_energy = 0.5
+light_specular = 0.0
 omni_range = 4.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)

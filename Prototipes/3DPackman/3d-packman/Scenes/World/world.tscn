@@ -19,6 +19,8 @@ size = Vector3(50, 1, 50)
 
 [sub_resource type="Environment" id="Environment_l1hd3"]
 ambient_light_source = 1
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 16.0
 glow_enabled = true
 
 [node name="World" type="Node3D"]

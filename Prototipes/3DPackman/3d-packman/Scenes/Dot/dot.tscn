@@ -1,21 +1,15 @@
-[gd_scene load_steps=5 format=3 uid="uid://dljml16cjj0v8"]
+[gd_scene load_steps=4 format=3 uid="uid://dljml16cjj0v8"]
 
 [ext_resource type="Script" uid="uid://cgff2c2vppcq7" path="res://Scenes/Dot/dot.gd" id="1_40an7"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_40an7"]
-albedo_color = Color(1, 0.72156864, 0.68235296, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_qr6s5"]
-material = SubResource("StandardMaterial3D_40an7")
+[ext_resource type="PackedScene" uid="uid://cjdxx3pwghedd" path="res://Assets/Dots/dots.glb" id="2_f4m08"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_qr6s5"]
 
 [node name="Dot" type="Node3D"]
 script = ExtResource("1_40an7")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.5, 0)
-mesh = SubResource("SphereMesh_qr6s5")
+[node name="dots" parent="." instance=ExtResource("2_f4m08")]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0.5, 0)
 
 [node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)

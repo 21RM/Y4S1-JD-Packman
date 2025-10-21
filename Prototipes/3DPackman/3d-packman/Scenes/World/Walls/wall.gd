@@ -17,6 +17,7 @@ func build(wall_cell: Vector2i) -> void:
 			neighbors.append(-1)
 	var surrounding_walls_count: int = neighbors.count(1)
 	var wall_center: Node3D = get_wall_center(neighbors, surrounding_walls_count)
+	prep_wall_piece(wall_center)
 	add_child(wall_center)
 	var wall_sides: Array[Node3D] = get_wall_sides(neighbors)
 	for wall_side_inst in wall_sides:
@@ -59,12 +60,18 @@ func get_wall_center(neighbors: Array[int], count: int) -> Node3D:
 				return wall_center
 			elif second_1 - first_1 == 3:
 				var wall_center: Node3D = wall_center_bevel_1.instantiate()
-				wall_center.rotate_y(PI/2)
+				wall_center.rotate_y(-PI/2)
 				return wall_center
 			else:
 				return wall_center_bevel_0.instantiate()
 		_:
 			return wall_center_bevel_0.instantiate()
+
+
+func prep_wall_piece(wall: Node3D) -> void:
+	for c in wall.get_children():
+		if c is GeometryInstance3D:
+			c.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 
 
 func get_idx_in_array(array: Array[int], value: int, n: int) -> int:

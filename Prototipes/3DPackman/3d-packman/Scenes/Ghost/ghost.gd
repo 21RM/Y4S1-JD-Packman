@@ -9,6 +9,9 @@ var time_in_mode: float = 0.0
 
 var speed: float = 2.5
 var rotation_speed: float = 5.0
+var float_t: float = 0
+var float_frequency: float = 3
+var float_amplitude: float = 0.1
 
 var last_packman_cell: Vector2i
 
@@ -18,23 +21,36 @@ const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.DOWN, Vector
 var current_cell: Vector2i
 var next_cell: Vector2i
 
+@export var blinky_model: PackedScene
+@export var pinky_model: PackedScene
+@export var inky_model: PackedScene
+@export var clyde_model: PackedScene
+
 
 
 func set_ghost_type(type: int) -> void:
 	ghost_type = type
-	# Change Later
-	var color: Color = Color(1, 0, 0)
+	var ghost_model: Node3D
 	match ghost_type:
-		1: color = Color(1, 0, 0)
-		2: color = Color(1, 0.6, 1)
-		3: color = Color(0, 1, 1)
-		4: color = Color(1.0, 0.5, 0.0)
-		_: color = Color(0, 0, 0)
-	var mat: StandardMaterial3D = StandardMaterial3D.new()
-	mat.albedo_color =  color
-	$MeshInstance3D.set_surface_override_material(0, mat)
+		1:
+			ghost_model = blinky_model.instantiate()
+			$OmniLight3D.light_color = Color(1, 0, 0)
+		2:
+			ghost_model = pinky_model.instantiate()
+			$OmniLight3D.light_color = Color(1, 0.75, 1)
+		3:
+			ghost_model = inky_model.instantiate()
+			$OmniLight3D.light_color = Color(0, 1, 1)
+		4:
+			ghost_model = clyde_model.instantiate()
+			$OmniLight3D.light_color = Color(1, 0.75, 0.25)
+	ghost_model.scale = Vector3(0.45, 0.45, 0.45)
+	add_child(ghost_model)
+	
+	set_cast_shadows_rec(ghost_model, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
 
 func _physics_process(delta: float) -> void:
+	float_t += delta
 	current_cell = UtilsGrid.world_to_cell(global_position)
 	var target_cell: Vector2i = compute_target_cell()
 	var current_center: Vector3 = UtilsGrid.cell_to_world(current_cell)
@@ -44,7 +60,11 @@ func _physics_process(delta: float) -> void:
 	
 	move_to_next_cell(delta)
 	var target_yaw: float = atan2(-dir.x, -dir.y)
-	rotation.y = lerp_angle(rotation.y, target_yaw, rotation_speed*delta)
+	rotation.y = lerp_angle(rotation.y, target_yaw - PI/2, rotation_speed*delta)
+	
+	# Vertical movement
+	var y_val: float = sin(float_t*float_frequency) * float_amplitude
+	position.y = 1 + y_val
 
 
 
@@ -135,8 +155,10 @@ func _on_body_entered(body: Node3D) -> void:
 		print("U died noob")
 
 
-
-
+func set_cast_shadows_rec(node: Node, mode: int) -> void:
+	for c in node.get_children():
+		if c is GeometryInstance3D:
+			c.cast_shadow = mode
 
 #================= FUNCTIONS NOT USED NOW BUT MAY BE USED LATER =================#
 

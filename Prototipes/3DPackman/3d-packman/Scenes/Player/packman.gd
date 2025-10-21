@@ -15,6 +15,7 @@ var current_center: Vector3 = Vector3.ZERO
 # world position of the center of the cell packman is currently occupying
 
 
+
 func _physics_process(delta: float) -> void:
 	# Input pooling
 	if Input.is_action_just_pressed("move_right"):
