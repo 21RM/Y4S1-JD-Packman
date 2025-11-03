@@ -1,8 +1,13 @@
 extends CanvasLayer
 
 
+var rng: RandomNumberGenerator
 
 func _ready() -> void:
+	rng = RandomNumberGenerator.new()
+	rng.randomize()
+	
+	UtilsGrid.build_grid(rng)
 	FxManager.play_crickets()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	fit_emitter()

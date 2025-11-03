@@ -46,7 +46,7 @@ func cell_to_world(cell: Vector2i) -> Vector3:
 
 func world_to_cell(world_pos: Vector3) -> Vector2i:
 	var rel: Vector3 = world_pos - grid_origin
-	return Vector2i(round(rel.x / cell_size), round(rel.z / cell_size))
+	return Vector2i(roundi(rel.x / cell_size), roundi(rel.z / cell_size))
 
 
 

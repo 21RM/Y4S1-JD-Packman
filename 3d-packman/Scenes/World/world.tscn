@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://boxhl1fbfuxu"]
+[gd_scene load_steps=33 format=3 uid="uid://boxhl1fbfuxu"]
 
 [ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
 [ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
@@ -17,6 +17,12 @@
 [ext_resource type="Texture2D" uid="uid://b3bceao342bgu" path="res://Assets/UI/Screen/HuntingRed/1.png" id="14_4pv6w"]
 [ext_resource type="Texture2D" uid="uid://c3neomndilcti" path="res://Assets/UI/Screen/HuntingRed/2.png" id="15_dr8i3"]
 [ext_resource type="Texture2D" uid="uid://c1f81wlp0x8cb" path="res://Assets/UI/Screen/HuntingRed/3.png" id="16_7aaxd"]
+[ext_resource type="Script" uid="uid://f46g2ab0vxhg" path="res://Scenes/World/map.gd" id="17_7aaxd"]
+[ext_resource type="Texture2D" uid="uid://svkxsa6r4phu" path="res://Assets/UI/Hearts/empty.png" id="18_hiquf"]
+[ext_resource type="Texture2D" uid="uid://b0ultp2iqfn5i" path="res://Assets/UI/Hearts/tiny_dot.png" id="19_7c7np"]
+[ext_resource type="Texture2D" uid="uid://b4y5o6gjp2xmr" path="res://Assets/Mouse/3.png" id="20_6paci"]
+[ext_resource type="Texture2D" uid="uid://rf3r0ddc47lp" path="res://Assets/Mouse/1.png" id="20_xatfh"]
+[ext_resource type="Texture2D" uid="uid://cstjaia5tfwn1" path="res://Assets/Mouse/2.png" id="22_owiee"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vadfg"]
 albedo_color = Color(0, 0, 0, 1)
@@ -330,6 +336,76 @@ libraries = {
 &"": SubResource("AnimationLibrary_fcotr")
 }
 
+[node name="Map" type="CanvasLayer" parent="."]
+visible = false
+script = ExtResource("17_7aaxd")
+empty_texture = ExtResource("18_hiquf")
+dot_texture = ExtResource("19_7c7np")
+energizer_texture = ExtResource("10_0ph6x")
+packman_texture1 = ExtResource("20_6paci")
+packman_texture2 = ExtResource("20_xatfh")
+packman_texture3 = ExtResource("22_owiee")
+
+[node name="ColorRect" type="ColorRect" parent="Map"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Map/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Control" type="Control" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Control" type="Control" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MapContainer" type="MarginContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer"]
+layout_mode = 2
+
+[node name="WallsLayer" type="GridContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer/AspectRatioContainer"]
+layout_mode = 2
+
+[node name="DotsLayer" type="GridContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer/AspectRatioContainer"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="Control2" type="Control" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MapUpdater" type="Timer" parent="Map"]
+wait_time = 0.1
+autostart = true
+
 [connection signal="timeout" from="Timers/GameTicker" to="." method="_on_game_tick"]
 [connection signal="timeout" from="Timers/JumpscareTimer" to="." method="_on_jumpscare_timer_timeout"]
 [connection signal="timeout" from="Timers/EndOfJumpscareTimer" to="." method="_on_end_of_jumpscare_timer_timeout"]
@@ -337,3 +413,4 @@ libraries = {
 [connection signal="update_dot_count" from="Dots" to="." method="_on_dots_update_dot_count"]
 [connection signal="close_spawn_room_door" from="Packman" to="." method="_on_packman_close_spawn_room_door"]
 [connection signal="deadly_ghost_touched_me" from="Packman" to="." method="_on_packman_deadly_ghost_touched_me"]
+[connection signal="timeout" from="Map/MapUpdater" to="Map" method="_on_map_updater_timeout"]
