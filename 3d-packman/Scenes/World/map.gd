@@ -40,7 +40,15 @@ func _ready() -> void:
 			# no custom_minimum_size — let it stretch
 			cr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			cr.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			cr.color =Color(0.0, 0.31, 1.0) if (UtilsGrid.grid[i] == 1) else Color(0, 0, 0)
+			
+			if UtilsGrid.is_world_door(UtilsGrid.reverse_idx(i)):
+				cr.color = Color(1, 1, 0, 1)
+			elif (UtilsGrid.grid[i] == 1) or \
+			UtilsGrid.is_generic_door(UtilsGrid.reverse_idx(i)):
+				cr.color =Color(0.0, 0.31, 1.0)
+			elif UtilsGrid.grid[i] == 0:
+				cr.color = Color(0,0,0)
+			
 			walls_grid.add_child(cr)
 			wall_cells[i] = cr
 

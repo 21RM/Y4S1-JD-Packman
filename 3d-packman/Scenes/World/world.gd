@@ -176,10 +176,6 @@ func instantiate_walls() -> void:
 
 
 func instantiate_world_door() -> void:
-	if world_door_scene == null:
-		push_warning("world_door_scene is not set on World node.")
-		return
-
 	# Clear any previous barrier (e.g., when regenerating the world)
 	for segment in world_door_segments:
 		if is_instance_valid(segment):
@@ -240,7 +236,6 @@ func instantiate_dots() -> void:
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				dot.connect("remove_dot_from_map", _on_dot_remove_dot_from_map)
 				$Dots.add_child(dot)
-			break
 
 func _on_dot_remove_dot_from_map(cell: Vector2i):
 	$Map.remove_dot_at(cell)

@@ -5,7 +5,7 @@ extends CharacterBody3D
 @export var rotation_speed: float = 10.0
 @export var center_snap_eps: float = 0.04  
 @export var turn_buffer_sec: float = 0.5
-var lifes: int = 1
+var lifes: int = 3
 
 var moving_speed: float = base_moving_speed
 var dir: Vector2i = Vector2i(0, -1)
