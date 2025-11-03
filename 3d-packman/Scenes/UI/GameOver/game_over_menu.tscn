@@ -179,5 +179,6 @@ size_flags_horizontal = 3
 [connection signal="button_up" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_button_up"]
 [connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_mouse_entered"]
 [connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_mouse_exited"]
+[connection signal="button_up" from="HBoxContainer/VBoxContainer/HBoxContainer3/MainMenu" to="." method="_on_main_menu_button_up"]
 [connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer3/MainMenu" to="." method="_on_main_menu_mouse_entered"]
 [connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer3/MainMenu" to="." method="_on_main_menu_mouse_exited"]

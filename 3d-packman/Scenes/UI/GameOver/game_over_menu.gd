@@ -20,6 +20,11 @@ func _on_try_again_button_up() -> void:
 	await get_tree().create_timer(0.7).timeout
 	get_tree().change_scene_to_file("res://Scenes/World/world.tscn")
 
+func _on_main_menu_button_up() -> void:
+	FxManager.play_button_press()
+	FxManager.stop_laughs()
+	await get_tree().create_timer(0.7).timeout
+	get_tree().change_scene_to_file("res://Scenes/UI/MainMenu/main_menu.tscn")
 
 
 func _on_try_again_mouse_entered() -> void:
