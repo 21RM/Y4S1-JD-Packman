@@ -15,6 +15,7 @@ extends Node3D
 @export var ghosts_height: float = 1.0
 
 var ghosts_spawn: Vector3 = Vector3.ZERO
+var world_door_segments: Array[Node3D] = []
 var prob_scatter: float = 0.10
 var prob_chase: float = 0.10
 var change_chase_bias: float = 0.002
@@ -125,11 +126,20 @@ func instantiate_world_door() -> void:
 	if world_door_scene == null:
 		push_warning("world_door_scene is not set on World node.")
 		return
-	
-	var door_rect: Rect2i = UtilsGrid.get_world_door_rect()
+
+	# Clear any previous barrier (e.g., when regenerating the world)
+	for segment in world_door_segments:
+		if is_instance_valid(segment):
+			segment.queue_free()
+	world_door_segments.clear()
+
+	# Door rectangle is precomputed in UtilsGrid
+	var door_rect: Rect2i = UtilsGrid.door
 	if door_rect.size == Vector2i.ZERO:
+		push_warning("UtilsGrid.door is empty — cannot place WorldDoor.")
 		return
-	
+
+	# Parent node to keep things organized
 	var parent: Node3D
 	if has_node("WorldDoor"):
 		parent = $WorldDoor
@@ -137,31 +147,24 @@ func instantiate_world_door() -> void:
 		parent = Node3D.new()
 		parent.name = "WorldDoor"
 		add_child(parent)
-	
-	# Clear previous doors if regenerating
-	for child in parent.get_children():
-		child.queue_free()
-	
-	var x_offset: float = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
-	var z_offset: float = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
-	
+
+	# Spawn a WorldDoor instance for each cell in the door rectangle
 	for x in range(door_rect.position.x, door_rect.position.x + door_rect.size.x):
 		for z in range(door_rect.position.y, door_rect.position.y + door_rect.size.y):
 			var door_inst: Node3D = world_door_scene.instantiate()
-			
-			var world_x: float = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
-			var world_z: float = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
-			door_inst.position = Vector3(world_x, 0.0, world_z)
-			
-			# Simple orientation based on rect shape:
-			#   size.y == 1 → horizontal along X (north/south edge)
-			#   size.x == 1 → vertical along Z (east/west edge)
-			if door_rect.size.y == 1:
-				door_inst.rotation.y = 0.0
-			elif door_rect.size.x == 1:
-				door_inst.rotation.y = PI * 0.5
-			
 			parent.add_child(door_inst)
+			world_door_segments.append(door_inst)
+
+			# Use the existing helper to convert cell → world
+			var cell := Vector2i(x, z)
+			door_inst.global_position = UtilsGrid.cell_to_world(cell)
+
+			# Orient door depending on whether it's horizontal or vertical
+			if door_rect.size.y == 1:
+				door_inst.rotation.y = 0.0        # horizontal door (north/south edge)
+			elif door_rect.size.x == 1:
+				door_inst.rotation.y = PI * 0.5    # vertical door (east/west edge)
+
 
 
 func instantiate_dots() -> void:
@@ -185,6 +188,7 @@ func instantiate_dots() -> void:
 				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				$Dots.add_child(dot)
+				break   #DEBUG
 
 func instantiate_energizers() -> void:
 	for child in $Energizers.get_children():
@@ -355,3 +359,9 @@ func _on_packman_close_spawn_room_door() -> void:
 
 func _on_dots_update_dot_count(n: int) -> void:
 	$UI/DotsRemaining/HBoxContainer/DotNumber.text = str(n)
+	if n == 0:
+		for segment in world_door_segments:
+			if is_instance_valid(segment):
+				segment.queue_free()
+		world_door_segments.clear()
+		UtilsGrid.door = Rect2i()

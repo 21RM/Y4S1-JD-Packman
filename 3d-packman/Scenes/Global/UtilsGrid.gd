@@ -45,10 +45,16 @@ func world_to_cell(world_pos: Vector3) -> Vector2i:
 
 
 func cell_walkable(cell: Vector2i) -> bool:
-	if cell.x >= 0 and cell.x < grid_size_x \
-	and cell.y >= 0 and cell.y < grid_size_z:
-		return grid[idx(cell.x, cell.y)] == 0
-	return true
+	if cell.x < 0 or cell.x >= grid_size_x or cell.y < 0 or cell.y >= grid_size_z:
+		return true
+
+	if door.size != Vector2i.ZERO:
+		if cell.x >= door.position.x and cell.x < door.position.x + door.size.x \
+		and cell.y >= door.position.y and cell.y < door.position.y + door.size.y:
+			return false
+
+	return grid[idx(cell.x, cell.y)] == 0
+
 
 
 
