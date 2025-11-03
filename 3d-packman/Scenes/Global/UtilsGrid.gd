@@ -61,8 +61,11 @@ func cell_walkable(cell: Vector2i) -> bool:
 
 	return grid[idx(cell.x, cell.y)] == 0
 
+func is_world_door(cell: Vector2i):
+	return door.has_point(cell)
 
-
+func is_generic_door(cell: Vector2i):
+	return cell == get_door_cell(ghosts_spawn) or cell == get_door_cell(player_spawn)
 
 func in_bounds(x: int, z: int) -> bool:
 	return x >= 0 and x < grid_size_x and z >= 0 and z < grid_size_z
@@ -119,6 +122,9 @@ func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) ->
 
 func idx(x: int, z: int) -> int:
 	return z*grid_size_x + x
+
+func reverse_idx(index: int) -> Vector2i:
+	return Vector2i(index % grid_size_x, index / grid_size_z)
 
 
 

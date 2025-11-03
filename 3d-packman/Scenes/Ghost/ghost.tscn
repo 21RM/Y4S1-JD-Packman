@@ -54,7 +54,6 @@ scared2_model = ExtResource("7_1g3gy")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 visible = false
 shape = SubResource("CapsuleShape3D_2oj78")
-disabled = true
 
 [node name="OmniLights" type="Node3D" parent="."]
 
