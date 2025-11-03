@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://2fcyvpuh801n"]
+[gd_scene load_steps=13 format=3 uid="uid://2fcyvpuh801n"]
 
 [ext_resource type="Script" uid="uid://credjkv7kfh24" path="res://Scenes/Global/FXManager.gd" id="1_580xe"]
 [ext_resource type="AudioStream" uid="uid://du365i3unoxnj" path="res://Audio/Game/pacman_chomp.wav" id="2_gp484"]
@@ -11,6 +11,7 @@
 [ext_resource type="AudioStream" uid="uid://b323xqralviqe" path="res://Audio/UI/button-houver_exit.mp3" id="6_akcx2"]
 [ext_resource type="AudioStream" uid="uid://bybpsc224c2se" path="res://Audio/Game/ghost_eaten.mp3" id="6_mnjhf"]
 [ext_resource type="AudioStream" uid="uid://cplddbxt4sypo" path="res://Audio/UI/button_press.mp3" id="7_t64sj"]
+[ext_resource type="AudioStream" uid="uid://cufskugwhus4f" path="res://Audio/UI/main-menu.mp3" id="8_ptver"]
 
 [node name="FXManager" type="Node"]
 script = ExtResource("1_580xe")
@@ -20,6 +21,7 @@ dot_sound = ExtResource("2_gp484")
 
 [node name="ScaryTheme" type="AudioStreamPlayer" parent="Ambient"]
 stream = ExtResource("3_gp484")
+volume_db = 5.0
 parameters/looping = true
 
 [node name="HeartBeat" type="AudioStreamPlayer" parent="Ambient"]
@@ -39,6 +41,7 @@ stream = ExtResource("5_odr4u")
 
 [node name="GhostEaten" type="AudioStreamPlayer" parent="Ghosts"]
 stream = ExtResource("6_mnjhf")
+volume_db = -5.0
 
 [node name="Jumpscare" type="Node" parent="."]
 
@@ -46,6 +49,10 @@ stream = ExtResource("6_mnjhf")
 stream = ExtResource("4_3wi5m")
 
 [node name="UI" type="Node" parent="."]
+
+[node name="Crickets" type="AudioStreamPlayer" parent="UI"]
+stream = ExtResource("8_ptver")
+volume_db = -10.0
 
 [node name="Laughs" type="AudioStreamPlayer" parent="UI"]
 stream = ExtResource("5_go42p")

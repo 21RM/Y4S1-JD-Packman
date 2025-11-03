@@ -62,5 +62,11 @@ func play_laughs() -> void:
 func stop_laughs() -> void:
 	$UI/Laughs.stop()
 
+func play_crickets() -> void:
+	$UI/Crickets.play()
+
+func stop_crickets() -> void:
+	$UI/Crickets.stop()
+
 func play_ghost_eaten() -> void:
 	$Ghosts/GhostEaten.play()
