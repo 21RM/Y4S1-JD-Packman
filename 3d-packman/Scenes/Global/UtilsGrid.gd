@@ -7,7 +7,9 @@ var grid_size_x: int = 25
 var grid_size_z: int = 25
 
 var player_spawn: Rect2i = Rect2i(13, 8, 5, 5)
-var ghosts_spawn: Rect2i = Rect2i(13, 20, 5, 5)
+var ghosts_spawn: Rect2i = Rect2i(13, 16, 5, 5)
+var door_direction: int = randi() % 4
+var door: Rect2i = get_door_rect(door_direction)
 var ghost_spawn_room_door: Vector2i = Vector2i.ZERO	
 
 var wall_density: float = 0.7
@@ -16,7 +18,7 @@ var reserved_rules: Array[Callable] = []
 var reserved_cells: Array[Vector2i]
 const DIRS: Array[Vector2i] = [Vector2i(0, -1),Vector2i(1, 0),Vector2i(0, 1),Vector2i(-1, 0)]
 
-# Maze generation:
+# Maze generation:transition_black
 var straight_bias: float = 0.90
 var extra_loop_ration: float = 0.20
 var target_max_deadends: int = 3
@@ -43,7 +45,10 @@ func world_to_cell(world_pos: Vector3) -> Vector2i:
 
 
 func cell_walkable(cell: Vector2i) -> bool:
-	return in_bounds(cell.x, cell.y) and grid[idx(cell.x, cell.y)] == 0
+	if cell.x >= 0 and cell.x < grid_size_x \
+	and cell.y >= 0 and cell.y < grid_size_z:
+		return grid[idx(cell.x, cell.y)] == 0
+	return true
 
 
 
@@ -64,6 +69,33 @@ func get_door_cell(rect: Rect2i) -> Vector2i:
 	var sx: int = rect.size.x
 	return Vector2i(px+sx/2, pz)
 
+func get_door_rect(door_dir: int) -> Rect2i:
+	var cx = int(grid_size_x / 2)
+	var cz = int(grid_size_z / 2)
+	
+	match door_dir:
+		0: # North
+			var width = 4 if grid_size_x % 2 == 0 else 3
+			var x = cx - int(width / 2)
+			return Rect2i(Vector2i(x, 0), Vector2i(width, 1))
+			
+		1: # East
+			var height = 4 if grid_size_z % 2 == 0 else 3
+			var z = cz - int(height / 2)
+			return Rect2i(Vector2i(grid_size_x - 1, z), Vector2i(1, height))
+			
+		2: # South
+			var width = 4 if grid_size_x % 2 == 0 else 3
+			var x = cx - int(width / 2)
+			return Rect2i(Vector2i(x, grid_size_z - 1), Vector2i(width, 1))
+			
+		3: # West
+			var height = 4 if grid_size_z % 2 == 0 else 3
+			var z = cz - int(height / 2)
+			return Rect2i(Vector2i(0, z), Vector2i(1, height))
+			
+		_:
+			return Rect2i()
 
 func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) -> bool:
 	if !cell_walkable(target_cell):
@@ -325,6 +357,7 @@ func shuffle_dirs(rng: RandomNumberGenerator, dirs: Array[Vector2i]) -> void:
 		var temp: Vector2i = dirs[i]
 		dirs[i] = dirs[j]
 		dirs[j] = temp
+
 
 '''
 ------------- RESERVED FUNCTIONS -----------------

@@ -29,10 +29,27 @@ size = Vector3(50, 1, 50)
 size = Vector3(50, 1, 50)
 
 [sub_resource type="Environment" id="Environment_l1hd3"]
-ambient_light_source = 1
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 16.0
 glow_enabled = true
+
+[sub_resource type="Animation" id="Animation_dr8i3"]
+resource_name = "HuntingRed"
+length = 0.6
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857143, 0.5714286),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_4pv6w"), ExtResource("15_dr8i3"), ExtResource("16_7aaxd"), ExtResource("15_dr8i3"), ExtResource("14_4pv6w")]
+}
 
 [sub_resource type="Animation" id="Animation_7staa"]
 length = 0.001
@@ -55,6 +72,23 @@ tracks/1/path = NodePath("../TextureRect:texture")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("13_dbvd7")]
+}
+
+[sub_resource type="Animation" id="Animation_7aaxd"]
+resource_name = "ResetTexture"
+length = 0.001
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
@@ -95,41 +129,6 @@ tracks/0/keys = {
 "values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1), Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_dr8i3"]
-resource_name = "HuntingRed"
-length = 0.6
-loop_mode = 1
-step = 0.15
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../TextureRect:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857143, 0.5714286),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 1,
-"values": [ExtResource("14_4pv6w"), ExtResource("15_dr8i3"), ExtResource("16_7aaxd"), ExtResource("15_dr8i3"), ExtResource("14_4pv6w")]
-}
-
-[sub_resource type="Animation" id="Animation_7aaxd"]
-resource_name = "ResetTexture"
-length = 0.001
-step = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../TextureRect:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [ExtResource("13_dbvd7")]
-}
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_fcotr"]
 _data = {
 &"HuntingRed": SubResource("Animation_dr8i3"),
@@ -165,6 +164,7 @@ one_shot = true
 
 [node name="Ceiling" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+visible = false
 
 [node name="CeilingMesh" type="MeshInstance3D" parent="Ceiling"]
 mesh = SubResource("BoxMesh_e2bkl")
@@ -182,6 +182,8 @@ mesh = SubResource("BoxMesh_e2bkl")
 shape = SubResource("BoxShape3D_t1gg8")
 
 [node name="Door" type="Node3D" parent="."]
+
+[node name="WorldDoor" type="Node3D" parent="."]
 
 [node name="Walls" type="Node3D" parent="."]
 

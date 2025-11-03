@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://bml5ovpse7lrf"]
+
+[node name="WorldDoor" type="Node3D"]

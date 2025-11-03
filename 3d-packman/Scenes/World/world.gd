@@ -3,6 +3,7 @@ extends Node3D
 @export_category("Scenes")
 @export var wall_scene: PackedScene
 @export var door_scene: PackedScene
+@export var world_door_scene: PackedScene
 @export var ghost_scene: PackedScene
 @export var dot_scene: PackedScene
 @export var energizer_scene: PackedScene
@@ -41,7 +42,6 @@ var game_over_scene: PackedScene = preload("res://Scenes/UI/GameOver/game_over_m
 
 
 func _ready() -> void:
-	
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	
 	rng = RandomNumberGenerator.new()
@@ -51,7 +51,9 @@ func _ready() -> void:
 		rng.seed = game_seed
 	
 	UtilsGrid.build_grid(rng)
+	print(UtilsGrid.grid.size())
 	instantiate_walls()
+	instantiate_world_door()
 	ghosts_spawn = get_ghosts_spawn()
 	instantiate_ghosts()
 	instantiate_energizers()
@@ -94,18 +96,72 @@ func instantiate_walls() -> void:
 	var x_offset: float = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
 	var z_offset: float = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
 	
-	UtilsGrid.grid_origin = Vector3(-x_offset + UtilsGrid.cell_size * 0.5, 0.0, -z_offset + UtilsGrid.cell_size * 0.5)
+	UtilsGrid.grid_origin = Vector3(
+		-x_offset + UtilsGrid.cell_size * 0.5,
+		0.0,
+		-z_offset + UtilsGrid.cell_size * 0.5
+	)
+	
+	# Get door rectangle from UtilsGrid
+	var door_rect: Rect2i = UtilsGrid.get_door_rect(UtilsGrid.door_direction)
+	var has_door: bool = door_rect.size != Vector2i.ZERO
 	
 	for x in range(UtilsGrid.grid_size_x):
 		for z in range(UtilsGrid.grid_size_z):
+			if has_door:
+				if x >= door_rect.position.x and x < door_rect.position.x + door_rect.size.x \
+				and z >= door_rect.position.y and z < door_rect.position.y + door_rect.size.y:
+					UtilsGrid.grid[UtilsGrid.idx(x, z)] = 0
+			
 			if UtilsGrid.grid[UtilsGrid.idx(x, z)] == 1:
 				var wall: StaticBody3D = wall_scene.instantiate()
-				var wall_x: float = (x*UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size*0.5
-				var wall_z: float = (z*UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size*0.5
-				wall.position = Vector3(wall_x, 0, wall_z)
+				var wall_x: float = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
+				var wall_z: float = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
+				wall.position = Vector3(wall_x, 0.0, wall_z)
 				wall.build(Vector2i(x, z))
 				$Walls.add_child(wall)
 
+func instantiate_world_door() -> void:
+	if world_door_scene == null:
+		push_warning("world_door_scene is not set on World node.")
+		return
+	
+	var door_rect: Rect2i = UtilsGrid.get_world_door_rect()
+	if door_rect.size == Vector2i.ZERO:
+		return
+	
+	var parent: Node3D
+	if has_node("WorldDoor"):
+		parent = $WorldDoor
+	else:
+		parent = Node3D.new()
+		parent.name = "WorldDoor"
+		add_child(parent)
+	
+	# Clear previous doors if regenerating
+	for child in parent.get_children():
+		child.queue_free()
+	
+	var x_offset: float = (UtilsGrid.grid_size_x * UtilsGrid.cell_size) * 0.5
+	var z_offset: float = (UtilsGrid.grid_size_z * UtilsGrid.cell_size) * 0.5
+	
+	for x in range(door_rect.position.x, door_rect.position.x + door_rect.size.x):
+		for z in range(door_rect.position.y, door_rect.position.y + door_rect.size.y):
+			var door_inst: Node3D = world_door_scene.instantiate()
+			
+			var world_x: float = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
+			var world_z: float = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
+			door_inst.position = Vector3(world_x, 0.0, world_z)
+			
+			# Simple orientation based on rect shape:
+			#   size.y == 1 → horizontal along X (north/south edge)
+			#   size.x == 1 → vertical along Z (east/west edge)
+			if door_rect.size.y == 1:
+				door_inst.rotation.y = 0.0
+			elif door_rect.size.x == 1:
+				door_inst.rotation.y = PI * 0.5
+			
+			parent.add_child(door_inst)
 
 
 func instantiate_dots() -> void:
