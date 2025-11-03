@@ -107,7 +107,8 @@ func refresh_dots() -> void:
 
 func _on_map_updater_timeout() -> void:
 	refresh_dots()
-	place_packman(UtilsPackman.packman.current_cell, UtilsPackman.packman.dir)
+	if UtilsGrid.in_bounds(UtilsPackman.packman.current_cell.x, UtilsPackman.packman.current_cell.y):
+		place_packman(UtilsPackman.packman.current_cell, UtilsPackman.packman.dir)
 	number += 1
 	number %= 3
 	var p_tex: Array = [packman_texture1, packman_texture2, packman_texture3]
