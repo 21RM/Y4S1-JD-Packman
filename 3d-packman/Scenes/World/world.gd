@@ -241,7 +241,6 @@ func instantiate_dots() -> void:
 				dot.connect("remove_dot_from_map", _on_dot_remove_dot_from_map)
 				$Dots.add_child(dot)
 			break
-		break
 
 func _on_dot_remove_dot_from_map(cell: Vector2i):
 	$Map.remove_dot_at(cell)
@@ -374,7 +373,17 @@ func _on_game_tick() -> void:
 					ghost.state = Ghost.GhostState.SCATTER
 					ghost.changed_state()
 					ghost.time_in_mode = 0.0
-
+	
+	if ($Packman.current_cell.x < -5 or\
+	$Packman.current_cell.y < -5 or\
+	$Packman.current_cell.x > UtilsGrid.grid_size_x + 5 or\
+	$Packman.current_cell.y > UtilsGrid.grid_size_z + 5)\
+	and $Timers/EndGameTimer.is_stopped():
+		disable_input = true
+		$Packman.input_allowed = false
+		$ScreenEffects/ColorRect/ScreenAnimations.play("endgame")
+		print("pilinha")
+		$Timers/EndGameTimer.start()
 
 func _on_packman_deadly_ghost_touched_me() -> void:
 	for ghost in $Ghosts.get_children():
@@ -424,10 +433,18 @@ func _on_packman_close_spawn_room_door() -> void:
 
 
 func _on_dots_update_dot_count(n: int) -> void:
-	$UI/DotsRemaining/HBoxContainer/DotNumber.text = str(n)
+	$UI/DotsRemaining/VBoxContainer/HBoxContainer/DotNumber.text = str(n)
 	if n == 0:
+		$UI/DotsRemaining/VBoxContainer/Label.visible = true
 		for segment in world_door_segments:
 			if is_instance_valid(segment):
 				segment.queue_free()
 		world_door_segments.clear()
 		UtilsGrid.door = Rect2i()
+
+
+func _on_end_game_timer_timeout() -> void:
+	print("should change scenes")
+	$ScreenEffects/ColorRect/ScreenAnimations.stop()
+	FxManager.stop_ambient()
+	get_tree().change_scene_to_file("res://Scenes/UI/WinScreen/end.tscn")
