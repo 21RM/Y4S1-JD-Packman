@@ -7,9 +7,6 @@ extends Node3D
 @export var dot_scene: PackedScene
 @export var energizer_scene: PackedScene
 
-@export_category("World Config")
-@export var game_seed: int = 0
-
 @export_category("Enemies")
 @export var ghosts_height: float = 1.0
 
@@ -26,6 +23,7 @@ var ghost_time_elapsed: float = 0.0
 var flicker_started: bool = false
 const FLICKER_THRESHOLD: float = 5.0
 var fov_tween: Tween
+var disable_input: bool = false
 
 var energizer_cells = [
 	Vector2i(1, 1),
@@ -35,7 +33,6 @@ var energizer_cells = [
 ]
 
 
-var rng: RandomNumberGenerator
 
 var game_over_scene: PackedScene = preload("res://Scenes/UI/GameOver/game_over_menu.tscn")
 
@@ -44,13 +41,6 @@ func _ready() -> void:
 	
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	
-	rng = RandomNumberGenerator.new()
-	if game_seed == 0:
-		rng.randomize()
-	else:
-		rng.seed = game_seed
-	
-	UtilsGrid.build_grid(rng)
 	instantiate_walls()
 	ghosts_spawn = get_ghosts_spawn()
 	instantiate_ghosts()
@@ -76,7 +66,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if $UI/TimerContainer.visible:
-		$UI/TimerContainer/RevengeTimer/Time.text = "00 : " + str(int($Timers/FrightenedTimer.time_left))
+		$UI/TimerContainer/RevengeTimer/Time.text = "00 : %02d" % int($Timers/FrightenedTimer.time_left)
 	
 	if !flicker_started and $Timers/FrightenedTimer.time_left > 0.0 and $Timers/FrightenedTimer.time_left <= FLICKER_THRESHOLD:
 		flicker_started = true
@@ -128,7 +118,11 @@ func instantiate_dots() -> void:
 				var dot_x = (x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
 				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
 				dot.position = Vector3(dot_x, 0.2, dot_z)
+				dot.connect("remove_dot_from_map", _on_dot_remove_dot_from_map)
 				$Dots.add_child(dot)
+
+func _on_dot_remove_dot_from_map(cell: Vector2i):
+	$Map.remove_dot_at(cell)
 
 func instantiate_energizers() -> void:
 	for child in $Energizers.get_children():
@@ -194,7 +188,8 @@ func get_ghosts_spawn() -> Vector3:
 	var spawn_cell: Vector2i = UtilsGrid.ghosts_spawn.position + UtilsGrid.ghosts_spawn.size/2
 	return Vector3(UtilsGrid.cell_to_world(spawn_cell).x, ghosts_height, UtilsGrid.cell_to_world(spawn_cell).z)
 
-func _on_energizer_collected():
+func _on_energizer_collected(cell: Vector2i):
+	$Map.remove_dot_at(cell)
 	for ghost in $Ghosts.get_children():
 		ghost.become_frightened()
 	$Timers/FrightenedTimer.start()
@@ -217,6 +212,7 @@ func _on_frightened_timer_timeout() -> void:
 	fov_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	fov_tween.tween_property($Packman/Camera, "fov", 100, 0.6)
 
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("toggle_camera"):
 		if $WorldCamera.current == true:
@@ -226,6 +222,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if Input.is_action_just_pressed("ui_fullscreen"):
 		var w: Window = get_window()
 		w.mode = Window.MODE_WINDOWED if w.mode == Window.MODE_FULLSCREEN else Window.MODE_FULLSCREEN
+	if !disable_input:
+		if Input.is_action_just_pressed("open_map"):
+			$Map.visible = true
+		if event.is_action_released("open_map"):
+			$Map.visible = false
 
 
 func _on_game_tick() -> void:
@@ -264,6 +265,8 @@ func _on_packman_deadly_ghost_touched_me() -> void:
 	FxManager.exit_energy()
 	
 	$UI/TimerContainer.visible = false
+	$Map.visible = false
+	disable_input = true
 	$ScreenEffects/ColorRect/ScreenAnimations.play("ResetTexture")
 	FxManager.exit_energy()
 	$Packman/Camera.fov = 100
@@ -288,6 +291,7 @@ func _on_end_of_jumpscare_timer_timeout() -> void:
 		get_tree().change_scene_to_packed(game_over_scene)
 	else:
 		$UI/HPContainer.set_lives($Packman.lifes)
+		disable_input = false
 		FxManager.play_ambient()
 
 
