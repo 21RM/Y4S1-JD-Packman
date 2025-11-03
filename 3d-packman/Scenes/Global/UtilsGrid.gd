@@ -1,22 +1,30 @@
 extends Node
 
 var grid: PackedByteArray
+var corridor_grid: PackedByteArray
 var grid_origin: Vector3
 var cell_size: float = 1.0
 var grid_size_x: int = 25
 var grid_size_z: int = 25
+var corridor_size_x: int
+var corridor_size_z: int
 
 var player_spawn: Rect2i = Rect2i(13, 8, 5, 5)
-var ghosts_spawn: Rect2i = Rect2i(13, 20, 5, 5)
+var ghosts_spawn: Rect2i = Rect2i(13, 16, 5, 5)
+var door_direction: int = randi() % 4
+var door: Rect2i = get_door_rect(door_direction)
 var ghost_spawn_room_door: Vector2i = Vector2i.ZERO	
 
 var wall_density: float = 0.7
+var win_corridor_rect: Rect2i = Rect2i()
+var win_corridor_depth: int = 20
+
 
 var reserved_rules: Array[Callable] = []
 var reserved_cells: Array[Vector2i]
 const DIRS: Array[Vector2i] = [Vector2i(0, -1),Vector2i(1, 0),Vector2i(0, 1),Vector2i(-1, 0)]
 
-# Maze generation:
+# Maze generation:transition_black
 var straight_bias: float = 0.90
 var extra_loop_ration: float = 0.20
 var target_max_deadends: int = 3
@@ -43,9 +51,21 @@ func world_to_cell(world_pos: Vector3) -> Vector2i:
 
 
 func cell_walkable(cell: Vector2i) -> bool:
-	return in_bounds(cell.x, cell.y) and grid[idx(cell.x, cell.y)] == 0
+	if cell.x < 0 or cell.x >= grid_size_x or cell.y < 0 or cell.y >= grid_size_z:
+		return true
 
+	if door.size != Vector2i.ZERO:
+		if cell.x >= door.position.x and cell.x < door.position.x + door.size.x \
+		and cell.y >= door.position.y and cell.y < door.position.y + door.size.y:
+			return false
 
+	return grid[idx(cell.x, cell.y)] == 0
+
+func is_world_door(cell: Vector2i):
+	return door.has_point(cell)
+
+func is_generic_door(cell: Vector2i):
+	return cell == get_door_cell(ghosts_spawn) or cell == get_door_cell(player_spawn)
 
 func in_bounds(x: int, z: int) -> bool:
 	return x >= 0 and x < grid_size_x and z >= 0 and z < grid_size_z
@@ -64,6 +84,33 @@ func get_door_cell(rect: Rect2i) -> Vector2i:
 	var sx: int = rect.size.x
 	return Vector2i(px+sx/2, pz)
 
+func get_door_rect(door_dir: int) -> Rect2i:
+	var cx = int(grid_size_x / 2)
+	var cz = int(grid_size_z / 2)
+	
+	match door_dir:
+		0: # North
+			var width = 4 if grid_size_x % 2 == 0 else 3
+			var x = cx - int(width / 2)
+			return Rect2i(Vector2i(x, 0), Vector2i(width, 1))
+			
+		1: # East
+			var height = 4 if grid_size_z % 2 == 0 else 3
+			var z = cz - int(height / 2)
+			return Rect2i(Vector2i(grid_size_x - 1, z), Vector2i(1, height))
+			
+		2: # South
+			var width = 4 if grid_size_x % 2 == 0 else 3
+			var x = cx - int(width / 2)
+			return Rect2i(Vector2i(x, grid_size_z - 1), Vector2i(width, 1))
+			
+		3: # West
+			var height = 4 if grid_size_z % 2 == 0 else 3
+			var z = cz - int(height / 2)
+			return Rect2i(Vector2i(0, z), Vector2i(1, height))
+			
+		_:
+			return Rect2i()
 
 func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) -> bool:
 	if !cell_walkable(target_cell):
@@ -75,6 +122,9 @@ func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) ->
 
 func idx(x: int, z: int) -> int:
 	return z*grid_size_x + x
+
+func reverse_idx(index: int) -> Vector2i:
+	return Vector2i(index % grid_size_x, index / grid_size_z)
 
 
 
@@ -102,7 +152,6 @@ func build_grid(rng: RandomNumberGenerator) -> void:
 	add_extra_loops(rng)
 	ensure_room_openings()
 	connect_corners_to_maze() 
-
 
 
 func start_grid() -> void:
@@ -311,6 +360,49 @@ func carve_room(rect: Rect2i, door_side: int = -1) -> void:
 				set_floor(px, pz+sz/2) # left
 				ghost_spawn_room_door = Vector2i(px-1, pz+sz/2)
 
+func build_win_corridor() -> void:
+	var door_span := door.size.x * door.size.y  # 3 or 4 depending on door
+
+	if door_direction == 0 or door_direction == 2:
+		corridor_size_x = door_span + 2
+		corridor_size_z = win_corridor_depth
+	else:
+		corridor_size_x = win_corridor_depth
+		corridor_size_z = door_span + 2
+
+	corridor_grid = PackedByteArray()
+	corridor_grid.resize(corridor_size_x * corridor_size_z)
+
+	for z in range(corridor_size_z):
+		for x in range(corridor_size_x):
+			var index = x + z * corridor_size_x
+			var is_border = (x == 0 or x == corridor_size_x - 1 or z == 0 or z == corridor_size_z - 1)
+			corridor_grid[index] = 1 if is_border else 0
+
+	match door_direction:
+		0:
+			var z_open = corridor_size_z - 1
+			for x in range(1, door_span + 1):
+				var index = x + z_open * corridor_size_x
+				corridor_grid[index] = 0
+
+		2:
+			var z_open = 0
+			for x in range(1, door_span + 1):
+				var index = x + z_open * corridor_size_x
+				corridor_grid[index] = 0
+
+		1:
+			var x_open = 0
+			for z in range(1, door_span + 1):
+				var index = x_open + z * corridor_size_x
+				corridor_grid[index] = 0
+
+		3:
+			var x_open = corridor_size_x - 1
+			for z in range(1, door_span + 1):
+				var index = x_open + z * corridor_size_x
+				corridor_grid[index] = 0
 func set_wall(x: int, z: int) -> void:
 	if in_bounds(x, z):
 		grid[idx(x, z)] = 1
@@ -325,6 +417,7 @@ func shuffle_dirs(rng: RandomNumberGenerator, dirs: Array[Vector2i]) -> void:
 		var temp: Vector2i = dirs[i]
 		dirs[i] = dirs[j]
 		dirs[j] = temp
+
 
 '''
 ------------- RESERVED FUNCTIONS -----------------

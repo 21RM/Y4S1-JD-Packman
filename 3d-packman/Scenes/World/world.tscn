@@ -1,10 +1,11 @@
-[gd_scene load_steps=33 format=3 uid="uid://boxhl1fbfuxu"]
+[gd_scene load_steps=35 format=3 uid="uid://boxhl1fbfuxu"]
 
 [ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
 [ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
 [ext_resource type="PackedScene" uid="uid://c8u0fmfaices7" path="res://Scenes/World/Walls/wall.tscn" id="2_3rhlx"]
 [ext_resource type="PackedScene" uid="uid://dw73d6bs83wdf" path="res://Scenes/Ghost/ghost.tscn" id="3_vadfg"]
 [ext_resource type="PackedScene" uid="uid://8fvke5dapaoj" path="res://Scenes/World/Walls/door.tscn" id="3_y0d6x"]
+[ext_resource type="PackedScene" uid="uid://bml5ovpse7lrf" path="res://Scenes/World/Walls/world_door.tscn" id="4_7aaxd"]
 [ext_resource type="PackedScene" uid="uid://dljml16cjj0v8" path="res://Scenes/Dot/dot.tscn" id="4_l1hd3"]
 [ext_resource type="PackedScene" uid="uid://cnjpvs2q6luga" path="res://Scenes/Energizer/energizer.tscn" id="5_adcqc"]
 [ext_resource type="Texture2D" uid="uid://cmjqjtkbp4r8x" path="res://Assets/UI/Hearts/heart.png" id="7_7staa"]
@@ -29,16 +30,34 @@ metallic_specular = 0.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
 material = SubResource("StandardMaterial3D_vadfg")
-size = Vector3(50, 1, 50)
+size = Vector3(200, 1, 200)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t1gg8"]
-size = Vector3(50, 1, 50)
+size = Vector3(200, 1, 200)
 
 [sub_resource type="Environment" id="Environment_l1hd3"]
 ambient_light_source = 1
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 16.0
 glow_enabled = true
+
+[sub_resource type="Animation" id="Animation_dr8i3"]
+resource_name = "HuntingRed"
+length = 0.6
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857143, 0.5714286),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_4pv6w"), ExtResource("15_dr8i3"), ExtResource("16_7aaxd"), ExtResource("15_dr8i3"), ExtResource("14_4pv6w")]
+}
 
 [sub_resource type="Animation" id="Animation_7staa"]
 length = 0.001
@@ -61,6 +80,23 @@ tracks/1/path = NodePath("../TextureRect:texture")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("13_dbvd7")]
+}
+
+[sub_resource type="Animation" id="Animation_7aaxd"]
+resource_name = "ResetTexture"
+length = 0.001
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
@@ -101,39 +137,21 @@ tracks/0/keys = {
 "values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1), Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_dr8i3"]
-resource_name = "HuntingRed"
-length = 0.6
-loop_mode = 1
-step = 0.15
+[sub_resource type="Animation" id="Animation_owiee"]
+resource_name = "endgame"
+length = 3.0
+step = 0.5
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/path = NodePath(".:color")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857143, 0.5714286),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 1,
-"values": [ExtResource("14_4pv6w"), ExtResource("15_dr8i3"), ExtResource("16_7aaxd"), ExtResource("15_dr8i3"), ExtResource("14_4pv6w")]
-}
-
-[sub_resource type="Animation" id="Animation_7aaxd"]
-resource_name = "ResetTexture"
-length = 0.001
-step = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("../TextureRect:texture")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [ExtResource("13_dbvd7")]
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_fcotr"]
@@ -141,6 +159,7 @@ _data = {
 &"HuntingRed": SubResource("Animation_dr8i3"),
 &"RESET": SubResource("Animation_7staa"),
 &"ResetTexture": SubResource("Animation_7aaxd"),
+&"endgame": SubResource("Animation_owiee"),
 &"jumpscare_black": SubResource("Animation_adcqc"),
 &"transition_black": SubResource("Animation_fcotr")
 }
@@ -149,6 +168,7 @@ _data = {
 script = ExtResource("1_yp2ti")
 wall_scene = ExtResource("2_3rhlx")
 door_scene = ExtResource("3_y0d6x")
+world_door_scene = ExtResource("4_7aaxd")
 ghost_scene = ExtResource("3_vadfg")
 dot_scene = ExtResource("4_l1hd3")
 energizer_scene = ExtResource("5_adcqc")
@@ -167,6 +187,10 @@ one_shot = true
 
 [node name="FrightenedTimer" type="Timer" parent="Timers"]
 wait_time = 10.0
+one_shot = true
+
+[node name="EndGameTimer" type="Timer" parent="Timers"]
+wait_time = 3.0
 one_shot = true
 
 [node name="Ceiling" type="StaticBody3D" parent="."]
@@ -188,6 +212,8 @@ mesh = SubResource("BoxMesh_e2bkl")
 shape = SubResource("BoxShape3D_t1gg8")
 
 [node name="Door" type="Node3D" parent="."]
+
+[node name="WorldDoor" type="Node3D" parent="."]
 
 [node name="Walls" type="Node3D" parent="."]
 
@@ -264,19 +290,29 @@ offset_bottom = 40.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 30
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UI/DotsRemaining"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/DotsRemaining"]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="TextureDot" type="TextureRect" parent="UI/DotsRemaining/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/DotsRemaining/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TextureDot" type="TextureRect" parent="UI/DotsRemaining/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 texture = ExtResource("10_0ph6x")
 
-[node name="DotNumber" type="Label" parent="UI/DotsRemaining/HBoxContainer"]
+[node name="DotNumber" type="Label" parent="UI/DotsRemaining/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("10_ugf0j")
 theme_override_font_sizes/font_size = 25
 text = "35"
+
+[node name="Label" type="Label" parent="UI/DotsRemaining/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_fonts/font = ExtResource("10_ugf0j")
+text = "All dots have been eaten! Find the exit!"
 
 [node name="TimerContainer" type="MarginContainer" parent="UI"]
 visible = false
@@ -406,6 +442,7 @@ autostart = true
 [connection signal="timeout" from="Timers/JumpscareTimer" to="." method="_on_jumpscare_timer_timeout"]
 [connection signal="timeout" from="Timers/EndOfJumpscareTimer" to="." method="_on_end_of_jumpscare_timer_timeout"]
 [connection signal="timeout" from="Timers/FrightenedTimer" to="." method="_on_frightened_timer_timeout"]
+[connection signal="timeout" from="Timers/EndGameTimer" to="." method="_on_end_game_timer_timeout"]
 [connection signal="update_dot_count" from="Dots" to="." method="_on_dots_update_dot_count"]
 [connection signal="close_spawn_room_door" from="Packman" to="." method="_on_packman_close_spawn_room_door"]
 [connection signal="deadly_ghost_touched_me" from="Packman" to="." method="_on_packman_deadly_ghost_touched_me"]

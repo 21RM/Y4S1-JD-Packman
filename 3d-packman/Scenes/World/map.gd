@@ -40,7 +40,15 @@ func _ready() -> void:
 			# no custom_minimum_size — let it stretch
 			cr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			cr.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			cr.color =Color(0.0, 0.31, 1.0) if (UtilsGrid.grid[i] == 1) else Color(0, 0, 0)
+			
+			if UtilsGrid.is_world_door(UtilsGrid.reverse_idx(i)):
+				cr.color = Color(1, 1, 0, 1)
+			elif (UtilsGrid.grid[i] == 1) or \
+			UtilsGrid.is_generic_door(UtilsGrid.reverse_idx(i)):
+				cr.color =Color(0.0, 0.31, 1.0)
+			elif UtilsGrid.grid[i] == 0:
+				cr.color = Color(0,0,0)
+			
 			walls_grid.add_child(cr)
 			wall_cells[i] = cr
 
@@ -107,7 +115,8 @@ func refresh_dots() -> void:
 
 func _on_map_updater_timeout() -> void:
 	refresh_dots()
-	place_packman(UtilsPackman.packman.current_cell, UtilsPackman.packman.dir)
+	if UtilsGrid.in_bounds(UtilsPackman.packman.current_cell.x, UtilsPackman.packman.current_cell.y):
+		place_packman(UtilsPackman.packman.current_cell, UtilsPackman.packman.dir)
 	number += 1
 	number %= 3
 	var p_tex: Array = [packman_texture1, packman_texture2, packman_texture3]
