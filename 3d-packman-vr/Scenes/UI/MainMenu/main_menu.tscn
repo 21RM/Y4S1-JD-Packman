@@ -1,0 +1,149 @@
+[gd_scene load_steps=8 format=3 uid="uid://x54obpvu2y55"]
+
+[ext_resource type="FontFile" uid="uid://b3h0tlpabnia5" path="res://Assets/UI/Font/PressStart2P-vaV7.ttf" id="1_o53sk"]
+[ext_resource type="Script" uid="uid://d0dyuha7y62kn" path="res://Scenes/UI/MainMenu/main_menu.gd" id="1_tik7u"]
+[ext_resource type="Texture2D" uid="uid://b601opme7xww1" path="res://Assets/UI/Hearts/Eyes.png" id="2_bw8va"]
+[ext_resource type="Theme" uid="uid://rq38y58y8e63" path="res://Themes/arcade.tres" id="2_tik7u"]
+
+[sub_resource type="Curve" id="Curve_bw8va"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.526749, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_608ul"]
+curve = SubResource("Curve_bw8va")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_608ul"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(576, 324, 0)
+gravity = Vector3(0, 0, 0)
+scale_min = 0.79999995
+alpha_curve = SubResource("CurveTexture_608ul")
+
+[node name="MainMenu" type="CanvasLayer"]
+script = ExtResource("1_tik7u")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Control" type="Control" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RedBalls" type="GPUParticles2D" parent="ColorRect/Control"]
+position = Vector2(576, 324)
+amount = 10
+texture = ExtResource("2_bw8va")
+lifetime = 3.0
+process_material = SubResource("ParticleProcessMaterial_608ul")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_o53sk")
+theme_override_font_sizes/font_size = 58
+text = "PACKM3N"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Play" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme = ExtResource("2_tik7u")
+theme_override_font_sizes/font_size = 25
+text = "PLAY"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Exit" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+theme = ExtResource("2_tik7u")
+theme_override_font_sizes/font_size = 25
+text = "EXIT"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer3" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="button_up" from="HBoxContainer/VBoxContainer/HBoxContainer2/Play" to="." method="_on_play_button_up"]
+[connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer2/Play" to="." method="_on_play_mouse_entered"]
+[connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer2/Play" to="." method="_on_play_mouse_exited"]
+[connection signal="button_up" from="HBoxContainer/VBoxContainer/HBoxContainer3/Exit" to="." method="_on_exit_button_up"]
+[connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer3/Exit" to="." method="_on_exit_mouse_entered"]
+[connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer3/Exit" to="." method="_on_exit_mouse_exited"]

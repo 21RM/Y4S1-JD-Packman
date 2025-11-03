@@ -1,0 +1,110 @@
+[gd_scene load_steps=16 format=3 uid="uid://dw73d6bs83wdf"]
+
+[ext_resource type="Script" uid="uid://cl0la3gq3eiyb" path="res://Scenes/Ghost/ghost.gd" id="1_vcqer"]
+[ext_resource type="PackedScene" uid="uid://yr38v0e0ex4x" path="res://Assets/Ghosts/Blinky.glb" id="2_vthiq"]
+[ext_resource type="PackedScene" uid="uid://d4c36k78wly2v" path="res://Assets/Ghosts/Pinky.glb" id="3_w822j"]
+[ext_resource type="PackedScene" uid="uid://b0jr72bgd40ni" path="res://Assets/Ghosts/Clyde.glb" id="4_h7c6n"]
+[ext_resource type="PackedScene" uid="uid://cgvl681lito05" path="res://Assets/Ghosts/Inky.glb" id="4_kc1xa"]
+[ext_resource type="PackedScene" uid="uid://t6xkq7xkg2i1" path="res://Assets/Ghosts/Scared.glb" id="6_kc1xa"]
+[ext_resource type="PackedScene" uid="uid://mmuavv4ihbfp" path="res://Assets/Ghosts/Scared1.glb" id="7_1g3gy"]
+[ext_resource type="ArrayMesh" uid="uid://dj6r8yrwp7h4h" path="res://Assets/Dots/dot.tres" id="8_q8vfh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2oj78"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1g3gy"]
+transparency = 1
+vertex_color_use_as_albedo = true
+emission_enabled = true
+emission = Color(0, 0, 1, 1)
+
+[sub_resource type="Curve" id="Curve_u1d5q"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_7vju2"]
+curve = SubResource("Curve_u1d5q")
+
+[sub_resource type="Curve" id="Curve_084vc"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_ycdf4"]
+curve = SubResource("Curve_084vc")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_q8vfh"]
+radial_velocity_min = 9.999977
+radial_velocity_max = 14.999977
+radial_velocity_curve = SubResource("CurveTexture_ycdf4")
+gravity = Vector3(0, 0, 0)
+scale_min = 0.099999994
+scale_max = 0.39999998
+color = Color(0.21283859, 0.43992257, 1, 1)
+alpha_curve = SubResource("CurveTexture_7vju2")
+
+[node name="Ghost" type="Area3D"]
+collision_layer = 2
+script = ExtResource("1_vcqer")
+blinky_model = ExtResource("2_vthiq")
+pinky_model = ExtResource("3_w822j")
+inky_model = ExtResource("4_kc1xa")
+clyde_model = ExtResource("4_h7c6n")
+scared1_model = ExtResource("6_kc1xa")
+scared2_model = ExtResource("7_1g3gy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+visible = false
+shape = SubResource("CapsuleShape3D_2oj78")
+
+[node name="OmniLights" type="Node3D" parent="."]
+
+[node name="GhostModel" type="OmniLight3D" parent="OmniLights"]
+light_color = Color(1, 0, 0, 1)
+light_energy = 0.3
+light_specular = 0.0
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 2.0
+shadow_blur = 2.0
+
+[node name="FrightenedModel1" type="OmniLight3D" parent="OmniLights"]
+visible = false
+light_color = Color(4.042983e-06, 0, 0.83234936, 1)
+light_energy = 0.3
+light_specular = 0.0
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 2.0
+shadow_blur = 2.0
+omni_range = 3.0
+
+[node name="FrightenedModel2" type="OmniLight3D" parent="OmniLights"]
+visible = false
+light_energy = 0.3
+light_specular = 0.0
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 2.0
+shadow_blur = 2.0
+omni_range = 3.0
+
+[node name="DeadTimer" type="Timer" parent="."]
+wait_time = 15.0
+one_shot = true
+
+[node name="FlickerTimer" type="Timer" parent="."]
+wait_time = 0.4
+one_shot = true
+
+[node name="DeathParticles" type="GPUParticles3D" parent="."]
+material_override = SubResource("StandardMaterial3D_1g3gy")
+emitting = false
+amount = 100
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_q8vfh")
+draw_pass_1 = ExtResource("8_q8vfh")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="DeadTimer" to="." method="_on_dead_timer_timeout"]
+[connection signal="timeout" from="FlickerTimer" to="." method="_on_flicker_timer_timeout"]

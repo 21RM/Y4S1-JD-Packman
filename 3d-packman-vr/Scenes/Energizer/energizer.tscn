@@ -1,0 +1,74 @@
+[gd_scene load_steps=12 format=3 uid="uid://cnjpvs2q6luga"]
+
+[ext_resource type="Script" uid="uid://b7rpdhowlh0qf" path="res://Scenes/Energizer/energizer.gd" id="1_6nxpg"]
+[ext_resource type="PackedScene" uid="uid://c14it4xbflyfp" path="res://Assets/Energizers/Energizer.glb" id="2_886bx"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_6nxpg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_886bx"]
+transparency = 1
+vertex_color_use_as_albedo = true
+emission_enabled = true
+emission = Color(1, 0.72156864, 0.68235296, 1)
+
+[sub_resource type="Curve" id="Curve_rypy2"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.49794245, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_q8fc0"]
+curve = SubResource("Curve_rypy2")
+
+[sub_resource type="Curve" id="Curve_q8fc0"]
+_data = [Vector2(0.008230448, 0.44943827), 0.0, 0.0, 0, 0]
+point_count = 1
+
+[sub_resource type="Curve" id="Curve_k1kgs"]
+_data = [Vector2(0, 0.5), 0.0, 0.0, 0, 0]
+point_count = 1
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_jhr16"]
+curve_y = SubResource("Curve_q8fc0")
+curve_z = SubResource("Curve_k1kgs")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_k1kgs"]
+particle_flag_align_y = true
+emission_shape = 1
+emission_sphere_radius = 0.8
+gravity = Vector3(0, 0, 0)
+radial_accel_min = -2.2351742e-06
+radial_accel_max = -2.2351742e-06
+scale_min = 0.099999994
+scale_max = 0.099999994
+scale_curve = SubResource("CurveXYZTexture_jhr16")
+alpha_curve = SubResource("CurveTexture_q8fc0")
+
+[sub_resource type="SphereMesh" id="SphereMesh_jhr16"]
+
+[node name="Energizer" type="Area3D"]
+script = ExtResource("1_6nxpg")
+
+[node name="Energizer" parent="." instance=ExtResource("2_886bx")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.7, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.7, 0)
+shape = SubResource("SphereShape3D_6nxpg")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+light_color = Color(1, 0.40784314, 0.5568628, 1)
+light_energy = 0.5
+light_specular = 0.0
+shadow_enabled = true
+omni_range = 3.0
+
+[node name="EnteringBlobs" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+layers = 16385
+material_override = SubResource("StandardMaterial3D_886bx")
+amount = 100
+process_material = SubResource("ParticleProcessMaterial_k1kgs")
+draw_pass_1 = SubResource("SphereMesh_jhr16")
+
+[node name="GPUParticlesAttractorSphere3D" type="GPUParticlesAttractorSphere3D" parent="EnteringBlobs"]
+strength = 4.0

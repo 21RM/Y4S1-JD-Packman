@@ -1,0 +1,412 @@
+[gd_scene load_steps=33 format=3 uid="uid://boxhl1fbfuxu"]
+
+[ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
+[ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
+[ext_resource type="PackedScene" uid="uid://c8u0fmfaices7" path="res://Scenes/World/Walls/wall.tscn" id="2_3rhlx"]
+[ext_resource type="PackedScene" uid="uid://dw73d6bs83wdf" path="res://Scenes/Ghost/ghost.tscn" id="3_vadfg"]
+[ext_resource type="PackedScene" uid="uid://8fvke5dapaoj" path="res://Scenes/World/Walls/door.tscn" id="3_y0d6x"]
+[ext_resource type="PackedScene" uid="uid://dljml16cjj0v8" path="res://Scenes/Dot/dot.tscn" id="4_l1hd3"]
+[ext_resource type="PackedScene" uid="uid://cnjpvs2q6luga" path="res://Scenes/Energizer/energizer.tscn" id="5_adcqc"]
+[ext_resource type="Texture2D" uid="uid://cmjqjtkbp4r8x" path="res://Assets/UI/Hearts/heart.png" id="7_7staa"]
+[ext_resource type="Script" uid="uid://rtm8bi2qlry3" path="res://Scenes/UI/hp_container.gd" id="7_fcotr"]
+[ext_resource type="Script" uid="uid://c0evexwvy5y14" path="res://Scenes/World/dots.gd" id="7_pvt60"]
+[ext_resource type="Texture2D" uid="uid://d0ssjb01feynh" path="res://Assets/UI/Hearts/dot.png" id="10_0ph6x"]
+[ext_resource type="FontFile" uid="uid://b3h0tlpabnia5" path="res://Assets/UI/Font/PressStart2P-vaV7.ttf" id="10_ugf0j"]
+[ext_resource type="Texture2D" uid="uid://daq5kjpto2nxx" path="res://Assets/UI/Screen/HuntingRed/0.png" id="13_dbvd7"]
+[ext_resource type="Texture2D" uid="uid://b3bceao342bgu" path="res://Assets/UI/Screen/HuntingRed/1.png" id="14_4pv6w"]
+[ext_resource type="Texture2D" uid="uid://c3neomndilcti" path="res://Assets/UI/Screen/HuntingRed/2.png" id="15_dr8i3"]
+[ext_resource type="Texture2D" uid="uid://c1f81wlp0x8cb" path="res://Assets/UI/Screen/HuntingRed/3.png" id="16_7aaxd"]
+[ext_resource type="Script" uid="uid://f46g2ab0vxhg" path="res://Scenes/World/map.gd" id="17_7aaxd"]
+[ext_resource type="Texture2D" uid="uid://svkxsa6r4phu" path="res://Assets/UI/Hearts/empty.png" id="18_hiquf"]
+[ext_resource type="Texture2D" uid="uid://b0ultp2iqfn5i" path="res://Assets/UI/Hearts/tiny_dot.png" id="19_7c7np"]
+[ext_resource type="Texture2D" uid="uid://b4y5o6gjp2xmr" path="res://Assets/Mouse/3.png" id="20_6paci"]
+[ext_resource type="Texture2D" uid="uid://rf3r0ddc47lp" path="res://Assets/Mouse/1.png" id="20_xatfh"]
+[ext_resource type="Texture2D" uid="uid://cstjaia5tfwn1" path="res://Assets/Mouse/2.png" id="22_owiee"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vadfg"]
+albedo_color = Color(0, 0, 0, 1)
+metallic_specular = 0.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
+material = SubResource("StandardMaterial3D_vadfg")
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t1gg8"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="Environment" id="Environment_l1hd3"]
+ambient_light_source = 1
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 16.0
+glow_enabled = true
+
+[sub_resource type="Animation" id="Animation_7staa"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../TextureRect:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("13_dbvd7")]
+}
+
+[sub_resource type="Animation" id="Animation_adcqc"]
+resource_name = "jumpscare_black"
+loop_mode = 1
+step = 0.02
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2039536, 0.4, 0.6, 0.8, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1), Color(0, 0, 0, 0), Color(0, 0, 0, 1), Color(0, 0, 0, 0), Color(0, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_fcotr"]
+resource_name = "transition_black"
+length = 2.0
+step = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.5, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 0), Color(0, 0, 0, 1), Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_dr8i3"]
+resource_name = "HuntingRed"
+length = 0.6
+loop_mode = 1
+step = 0.15
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.14285715, 0.2857143, 0.42857143, 0.5714286),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("14_4pv6w"), ExtResource("15_dr8i3"), ExtResource("16_7aaxd"), ExtResource("15_dr8i3"), ExtResource("14_4pv6w")]
+}
+
+[sub_resource type="Animation" id="Animation_7aaxd"]
+resource_name = "ResetTexture"
+length = 0.001
+step = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../TextureRect:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("13_dbvd7")]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fcotr"]
+_data = {
+&"HuntingRed": SubResource("Animation_dr8i3"),
+&"RESET": SubResource("Animation_7staa"),
+&"ResetTexture": SubResource("Animation_7aaxd"),
+&"jumpscare_black": SubResource("Animation_adcqc"),
+&"transition_black": SubResource("Animation_fcotr")
+}
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_yp2ti")
+wall_scene = ExtResource("2_3rhlx")
+door_scene = ExtResource("3_y0d6x")
+ghost_scene = ExtResource("3_vadfg")
+dot_scene = ExtResource("4_l1hd3")
+energizer_scene = ExtResource("5_adcqc")
+
+[node name="Timers" type="Node" parent="."]
+
+[node name="GameTicker" type="Timer" parent="Timers"]
+autostart = true
+
+[node name="JumpscareTimer" type="Timer" parent="Timers"]
+wait_time = 1.5
+one_shot = true
+
+[node name="EndOfJumpscareTimer" type="Timer" parent="Timers"]
+one_shot = true
+
+[node name="FrightenedTimer" type="Timer" parent="Timers"]
+wait_time = 10.0
+one_shot = true
+
+[node name="Ceiling" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+
+[node name="CeilingMesh" type="MeshInstance3D" parent="Ceiling"]
+mesh = SubResource("BoxMesh_e2bkl")
+
+[node name="CeilingColision" type="CollisionShape3D" parent="Ceiling"]
+shape = SubResource("BoxShape3D_t1gg8")
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_e2bkl")
+
+[node name="FloorColision" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_t1gg8")
+
+[node name="Door" type="Node3D" parent="."]
+
+[node name="Walls" type="Node3D" parent="."]
+
+[node name="Ghosts" type="Node3D" parent="."]
+
+[node name="Dots" type="Node3D" parent="."]
+script = ExtResource("7_pvt60")
+
+[node name="Energizers" type="Node3D" parent="."]
+
+[node name="Packman" parent="." instance=ExtResource("1_t1gg8")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 1, 5)
+
+[node name="WorldCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 35, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_l1hd3")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HPContainer" type="MarginContainer" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -238.0
+offset_bottom = 80.0
+grow_horizontal = 0
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 20
+script = ExtResource("7_fcotr")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/HPContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/HPContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="TextureRect" type="TextureRect" parent="UI/HPContainer/HBoxContainer/MarginContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("7_7staa")
+expand_mode = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="UI/HPContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="TextureRect" type="TextureRect" parent="UI/HPContainer/HBoxContainer/MarginContainer2"]
+layout_mode = 2
+texture = ExtResource("7_7staa")
+expand_mode = 3
+
+[node name="MarginContainer3" type="MarginContainer" parent="UI/HPContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+
+[node name="TextureRect" type="TextureRect" parent="UI/HPContainer/HBoxContainer/MarginContainer3"]
+layout_mode = 2
+texture = ExtResource("7_7staa")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="DotsRemaining" type="MarginContainer" parent="UI"]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 30
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/DotsRemaining"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TextureDot" type="TextureRect" parent="UI/DotsRemaining/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("10_0ph6x")
+
+[node name="DotNumber" type="Label" parent="UI/DotsRemaining/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("10_ugf0j")
+theme_override_font_sizes/font_size = 25
+text = "35"
+
+[node name="TimerContainer" type="MarginContainer" parent="UI"]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+size_flags_vertical = 0
+theme_override_constants/margin_top = 30
+
+[node name="RevengeTimer" type="VBoxContainer" parent="UI/TimerContainer"]
+layout_mode = 2
+
+[node name="Revenge" type="Label" parent="UI/TimerContainer/RevengeTimer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("10_ugf0j")
+theme_override_font_sizes/font_size = 20
+text = "REVENGE"
+
+[node name="Time" type="Label" parent="UI/TimerContainer/RevengeTimer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_fonts/font = ExtResource("10_ugf0j")
+theme_override_font_sizes/font_size = 20
+text = "00 : 20
+"
+
+[node name="ScreenEffects" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="ScreenEffects"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_dbvd7")
+
+[node name="ColorRect" type="ColorRect" parent="ScreenEffects"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="ScreenAnimations" type="AnimationPlayer" parent="ScreenEffects/ColorRect"]
+libraries = {
+&"": SubResource("AnimationLibrary_fcotr")
+}
+
+[node name="Map" type="CanvasLayer" parent="."]
+visible = false
+script = ExtResource("17_7aaxd")
+empty_texture = ExtResource("18_hiquf")
+dot_texture = ExtResource("19_7c7np")
+energizer_texture = ExtResource("10_0ph6x")
+packman_texture1 = ExtResource("20_6paci")
+packman_texture2 = ExtResource("20_xatfh")
+packman_texture3 = ExtResource("22_owiee")
+
+[node name="ColorRect" type="ColorRect" parent="Map"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Map/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Control" type="Control" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Control" type="Control" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MapContainer" type="MarginContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer"]
+layout_mode = 2
+
+[node name="WallsLayer" type="GridContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer/AspectRatioContainer"]
+layout_mode = 2
+
+[node name="DotsLayer" type="GridContainer" parent="Map/ColorRect/VBoxContainer/HBoxContainer/MapContainer/AspectRatioContainer"]
+layout_mode = 2
+
+[node name="Control2" type="Control" parent="Map/ColorRect/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="Control2" type="Control" parent="Map/ColorRect/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="MapUpdater" type="Timer" parent="Map"]
+wait_time = 0.1
+autostart = true
+
+[connection signal="timeout" from="Timers/GameTicker" to="." method="_on_game_tick"]
+[connection signal="timeout" from="Timers/JumpscareTimer" to="." method="_on_jumpscare_timer_timeout"]
+[connection signal="timeout" from="Timers/EndOfJumpscareTimer" to="." method="_on_end_of_jumpscare_timer_timeout"]
+[connection signal="timeout" from="Timers/FrightenedTimer" to="." method="_on_frightened_timer_timeout"]
+[connection signal="update_dot_count" from="Dots" to="." method="_on_dots_update_dot_count"]
+[connection signal="close_spawn_room_door" from="Packman" to="." method="_on_packman_close_spawn_room_door"]
+[connection signal="deadly_ghost_touched_me" from="Packman" to="." method="_on_packman_deadly_ghost_touched_me"]
+[connection signal="timeout" from="Map/MapUpdater" to="Map" method="_on_map_updater_timeout"]
