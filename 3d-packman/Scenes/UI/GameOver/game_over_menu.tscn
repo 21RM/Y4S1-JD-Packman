@@ -1,0 +1,183 @@
+[gd_scene load_steps=13 format=3 uid="uid://dta8clsqq4rr1"]
+
+[ext_resource type="Script" uid="uid://diu1ap724u4gs" path="res://Scenes/UI/GameOver/game_over_menu.gd" id="1_41csx"]
+[ext_resource type="FontFile" uid="uid://b3h0tlpabnia5" path="res://Assets/UI/Font/PressStart2P-vaV7.ttf" id="2_awjp8"]
+[ext_resource type="Texture2D" uid="uid://bbh0oa3vhqmp7" path="res://Assets/Ghosts/2d/blinky.png" id="2_rhosh"]
+[ext_resource type="Theme" uid="uid://rq38y58y8e63" path="res://Themes/arcade.tres" id="3_8y4n8"]
+[ext_resource type="Texture2D" uid="uid://fr4uk8iamo34" path="res://Assets/Ghosts/2d/clyde.png" id="3_t6vd4"]
+[ext_resource type="Texture2D" uid="uid://tdh34b1h7yb2" path="res://Assets/Ghosts/2d/inky.png" id="4_84ypr"]
+[ext_resource type="Texture2D" uid="uid://empo3bw41o5o" path="res://Assets/Ghosts/2d/pinky.png" id="5_lgprb"]
+
+[sub_resource type="Curve" id="Curve_vd1hy"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.22222224, 1), 0.0, 0.0, 0, 0, Vector2(0.5020577, 1), 0.0, 0.0, 0, 0, Vector2(0.79835397, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="CurveTexture" id="CurveTexture_cyh4h"]
+curve = SubResource("Curve_vd1hy")
+
+[sub_resource type="Curve" id="Curve_rhosh"]
+_limits = [-1.0, 1.0, 0.0, 1.0]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.061728396, 1), 0.0, 0.0, 0, 0, Vector2(0.25514406, -1), 0.0, 0.0, 0, 0, Vector2(0.36213994, 1), 0.0, 0.0, 0, 0, Vector2(0.5020577, -1), 0.0, 0.0, 0, 0, Vector2(0.6296297, 1), 0.0, 0.0, 0, 0, Vector2(0.7489713, -1), 0.0, 0.0, 0, 0, Vector2(0.86831284, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 9
+
+[sub_resource type="CurveTexture" id="CurveTexture_vd1hy"]
+curve = SubResource("Curve_rhosh")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_8y4n8"]
+lifetime_randomness = 0.3
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(600, 0, 1)
+gravity = Vector3(0, -98, 0)
+radial_accel_min = 150.0
+radial_accel_max = 200.0
+radial_accel_curve = SubResource("CurveTexture_vd1hy")
+alpha_curve = SubResource("CurveTexture_cyh4h")
+
+[node name="GameOverMenu" type="CanvasLayer"]
+script = ExtResource("1_41csx")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Control" type="Control" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 8
+
+[node name="BlinkyEmitter" type="GPUParticles2D" parent="ColorRect/Control"]
+amount = 25
+texture = ExtResource("2_rhosh")
+lifetime = 4.5
+process_material = SubResource("ParticleProcessMaterial_8y4n8")
+
+[node name="BlinkyEmitter2" type="GPUParticles2D" parent="ColorRect/Control"]
+amount = 25
+texture = ExtResource("3_t6vd4")
+lifetime = 4.5
+process_material = SubResource("ParticleProcessMaterial_8y4n8")
+
+[node name="BlinkyEmitter3" type="GPUParticles2D" parent="ColorRect/Control"]
+amount = 25
+texture = ExtResource("4_84ypr")
+lifetime = 4.5
+process_material = SubResource("ParticleProcessMaterial_8y4n8")
+
+[node name="BlinkyEmitter4" type="GPUParticles2D" parent="ColorRect/Control"]
+amount = 25
+texture = ExtResource("5_lgprb")
+lifetime = 4.5
+process_material = SubResource("ParticleProcessMaterial_8y4n8")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Spacer" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_awjp8")
+theme_override_font_sizes/font_size = 58
+text = "GAME OVER"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="TryAgain" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme = ExtResource("3_8y4n8")
+theme_override_font_sizes/font_size = 25
+text = "TRY AGAIN"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MainMenu" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+theme = ExtResource("3_8y4n8")
+theme_override_font_sizes/font_size = 25
+text = "MAIN MENU"
+
+[node name="Spacer" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer3" type="Control" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer2" type="Control" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="button_up" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_button_up"]
+[connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_mouse_entered"]
+[connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain" to="." method="_on_try_again_mouse_exited"]
+[connection signal="mouse_entered" from="HBoxContainer/VBoxContainer/HBoxContainer3/MainMenu" to="." method="_on_main_menu_mouse_entered"]
+[connection signal="mouse_exited" from="HBoxContainer/VBoxContainer/HBoxContainer3/MainMenu" to="." method="_on_main_menu_mouse_exited"]
