@@ -24,10 +24,10 @@ metallic_specular = 0.0
 
 [sub_resource type="BoxMesh" id="BoxMesh_e2bkl"]
 material = SubResource("StandardMaterial3D_vadfg")
-size = Vector3(50, 1, 50)
+size = Vector3(200, 1, 200)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t1gg8"]
-size = Vector3(50, 1, 50)
+size = Vector3(200, 1, 200)
 
 [sub_resource type="Environment" id="Environment_l1hd3"]
 ambient_light_color = Color(1, 1, 1, 1)
@@ -166,6 +166,7 @@ one_shot = true
 
 [node name="Ceiling" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+visible = false
 
 [node name="CeilingMesh" type="MeshInstance3D" parent="Ceiling"]
 mesh = SubResource("BoxMesh_e2bkl")

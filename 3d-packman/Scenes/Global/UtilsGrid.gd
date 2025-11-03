@@ -1,10 +1,13 @@
 extends Node
 
 var grid: PackedByteArray
+var corridor_grid: PackedByteArray
 var grid_origin: Vector3
 var cell_size: float = 1.0
 var grid_size_x: int = 25
 var grid_size_z: int = 25
+var corridor_size_x: int
+var corridor_size_z: int
 
 var player_spawn: Rect2i = Rect2i(13, 8, 5, 5)
 var ghosts_spawn: Rect2i = Rect2i(13, 16, 5, 5)
@@ -13,6 +16,9 @@ var door: Rect2i = get_door_rect(door_direction)
 var ghost_spawn_room_door: Vector2i = Vector2i.ZERO	
 
 var wall_density: float = 0.7
+var win_corridor_rect: Rect2i = Rect2i()
+var win_corridor_depth: int = 20
+
 
 var reserved_rules: Array[Callable] = []
 var reserved_cells: Array[Vector2i]
@@ -140,7 +146,6 @@ func build_grid(rng: RandomNumberGenerator) -> void:
 	add_extra_loops(rng)
 	ensure_room_openings()
 	connect_corners_to_maze() 
-
 
 
 func start_grid() -> void:
@@ -349,6 +354,49 @@ func carve_room(rect: Rect2i, door_side: int = -1) -> void:
 				set_floor(px, pz+sz/2) # left
 				ghost_spawn_room_door = Vector2i(px-1, pz+sz/2)
 
+func build_win_corridor() -> void:
+	var door_span := door.size.x * door.size.y  # 3 or 4 depending on door
+
+	if door_direction == 0 or door_direction == 2:
+		corridor_size_x = door_span + 2
+		corridor_size_z = win_corridor_depth
+	else:
+		corridor_size_x = win_corridor_depth
+		corridor_size_z = door_span + 2
+
+	corridor_grid = PackedByteArray()
+	corridor_grid.resize(corridor_size_x * corridor_size_z)
+
+	for z in range(corridor_size_z):
+		for x in range(corridor_size_x):
+			var index = x + z * corridor_size_x
+			var is_border = (x == 0 or x == corridor_size_x - 1 or z == 0 or z == corridor_size_z - 1)
+			corridor_grid[index] = 1 if is_border else 0
+
+	match door_direction:
+		0:
+			var z_open = corridor_size_z - 1
+			for x in range(1, door_span + 1):
+				var index = x + z_open * corridor_size_x
+				corridor_grid[index] = 0
+
+		2:
+			var z_open = 0
+			for x in range(1, door_span + 1):
+				var index = x + z_open * corridor_size_x
+				corridor_grid[index] = 0
+
+		1:
+			var x_open = 0
+			for z in range(1, door_span + 1):
+				var index = x_open + z * corridor_size_x
+				corridor_grid[index] = 0
+
+		3:
+			var x_open = corridor_size_x - 1
+			for z in range(1, door_span + 1):
+				var index = x_open + z * corridor_size_x
+				corridor_grid[index] = 0
 func set_wall(x: int, z: int) -> void:
 	if in_bounds(x, z):
 		grid[idx(x, z)] = 1

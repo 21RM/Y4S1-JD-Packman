@@ -52,7 +52,7 @@ func _ready() -> void:
 		rng.seed = game_seed
 	
 	UtilsGrid.build_grid(rng)
-	print(UtilsGrid.grid.size())
+	UtilsGrid.build_win_corridor()
 	instantiate_walls()
 	instantiate_world_door()
 	ghosts_spawn = get_ghosts_spawn()
@@ -107,8 +107,10 @@ func instantiate_walls() -> void:
 	var door_rect: Rect2i = UtilsGrid.get_door_rect(UtilsGrid.door_direction)
 	var has_door: bool = door_rect.size != Vector2i.ZERO
 	
+	# 1) WORLD WALLS (main grid)
 	for x in range(UtilsGrid.grid_size_x):
 		for z in range(UtilsGrid.grid_size_z):
+			# Clear door area in main grid
 			if has_door:
 				if x >= door_rect.position.x and x < door_rect.position.x + door_rect.size.x \
 				and z >= door_rect.position.y and z < door_rect.position.y + door_rect.size.y:
@@ -121,6 +123,67 @@ func instantiate_walls() -> void:
 				wall.position = Vector3(wall_x, 0.0, wall_z)
 				wall.build(Vector2i(x, z))
 				$Walls.add_child(wall)
+	
+	# 2) WIN CORRIDOR WALLS (corridor_grid, positioned relative to the door)
+	if UtilsGrid.corridor_grid.size() == 0 or not has_door:
+		return
+	
+	# Must match build_win_corridor()
+	var door_span: int = door_rect.size.x * door_rect.size.y  # 3 or 4
+	
+	if UtilsGrid.door_direction == 0 or UtilsGrid.door_direction == 2:
+		# Vertical door: corridor width along X, depth along Z
+		UtilsGrid.corridor_size_x = door_span + 2
+		UtilsGrid.corridor_size_z = UtilsGrid.win_corridor_depth
+	else:
+		# Horizontal door: corridor width along Z, depth along X
+		UtilsGrid.corridor_size_x = UtilsGrid.win_corridor_depth
+		UtilsGrid.corridor_size_z = door_span + 2
+	
+	for cz in range(UtilsGrid.corridor_size_z):
+		for cx in range(UtilsGrid.corridor_size_x):
+			var corr_idx: int = cx + cz * UtilsGrid.corridor_size_x
+			if UtilsGrid.corridor_grid[corr_idx] != 1:
+				continue  # only place walls where corridor_grid == 1
+			
+			var world_cell := Vector2i.ZERO
+			
+			match UtilsGrid.door_direction:
+				0:
+					var origin_x_0: int = door_rect.position.x - 1
+					var origin_z_0: int = door_rect.position.y - (UtilsGrid.corridor_size_z - 1)
+					world_cell.x = origin_x_0 + cx
+					world_cell.y = origin_z_0 + cz
+				
+				2:
+					var origin_x_2: int = door_rect.position.x - 1
+					var origin_z_2: int = door_rect.position.y + 1
+					world_cell.x = origin_x_2 + cx
+					world_cell.y = origin_z_2 + cz
+				
+				1:
+					var origin_x_1: int = door_rect.position.x + 1
+					var origin_z_1: int = door_rect.position.y - 1
+					world_cell.x = origin_x_1 + cx
+					world_cell.y = origin_z_1 + cz
+				
+				3:
+					var origin_x_3: int = door_rect.position.x - UtilsGrid.corridor_size_x
+					var origin_z_3: int = door_rect.position.y - 1
+					world_cell.x = origin_x_3 + cx
+					world_cell.y = origin_z_3 + cz
+			
+			var wall_world_x: float = (world_cell.x * UtilsGrid.cell_size) - x_offset + UtilsGrid.cell_size * 0.5
+			var wall_world_z: float = (world_cell.y * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
+			
+			var corridor_wall: StaticBody3D = wall_scene.instantiate()
+			corridor_wall.position = Vector3(wall_world_x, 0.0, wall_world_z)
+
+			corridor_wall.build(world_cell, true, Vector2i(cx, cz))
+
+			$Walls.add_child(corridor_wall)
+
+
 
 func instantiate_world_door() -> void:
 	if world_door_scene == null:
@@ -165,8 +228,6 @@ func instantiate_world_door() -> void:
 			elif door_rect.size.x == 1:
 				door_inst.rotation.y = PI * 0.5    # vertical door (east/west edge)
 
-
-
 func instantiate_dots() -> void:
 	for child in $Dots.get_children():
 		child.queue_free()
@@ -188,7 +249,8 @@ func instantiate_dots() -> void:
 				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				$Dots.add_child(dot)
-				#break   #DEBUG
+			break
+		break
 
 func instantiate_energizers() -> void:
 	for child in $Energizers.get_children():
