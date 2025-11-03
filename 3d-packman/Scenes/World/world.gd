@@ -188,7 +188,7 @@ func instantiate_dots() -> void:
 				var dot_z = (z * UtilsGrid.cell_size) - z_offset + UtilsGrid.cell_size * 0.5
 				dot.position = Vector3(dot_x, 0.2, dot_z)
 				$Dots.add_child(dot)
-				break   #DEBUG
+				#break   #DEBUG
 
 func instantiate_energizers() -> void:
 	for child in $Energizers.get_children():
