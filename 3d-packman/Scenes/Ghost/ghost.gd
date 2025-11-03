@@ -148,6 +148,7 @@ func calculate_next_cell(target_cell: Vector2i) -> Vector2i:
 	var possible_cells: Dictionary = {}
 	for d in DIRS:
 		var test_cell: Vector2i = current_cell + d
+		if !UtilsGrid.in_bounds(test_cell.x, test_cell.y): continue
 		if UtilsGrid.can_walk_to_neighbor_cell(current_cell, test_cell):
 			possible_cells[test_cell] = d
 	if possible_cells.keys().size() == 1:

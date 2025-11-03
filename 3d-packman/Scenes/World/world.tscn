@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://boxhl1fbfuxu"]
+[gd_scene load_steps=34 format=3 uid="uid://boxhl1fbfuxu"]
 
 [ext_resource type="PackedScene" uid="uid://bx30jfr23jsnd" path="res://Scenes/Player/packman.tscn" id="1_t1gg8"]
 [ext_resource type="Script" uid="uid://crsmuwkfki803" path="res://Scenes/World/world.gd" id="1_yp2ti"]
@@ -36,6 +36,7 @@ size = Vector3(200, 1, 200)
 size = Vector3(200, 1, 200)
 
 [sub_resource type="Environment" id="Environment_l1hd3"]
+ambient_light_source = 1
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 16.0
 glow_enabled = true

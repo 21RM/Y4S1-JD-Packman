@@ -41,14 +41,7 @@ var game_over_scene: PackedScene = preload("res://Scenes/UI/GameOver/game_over_m
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	
-	rng = RandomNumberGenerator.new()
-	if game_seed == 0:
-		rng.randomize()
-	else:
-		rng.seed = game_seed
-	
-	UtilsGrid.build_grid(rng)
+
 	UtilsGrid.build_win_corridor()
 	instantiate_walls()
 	instantiate_world_door()
