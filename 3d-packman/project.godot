@@ -21,10 +21,15 @@ config/icon="res://icon.svg"
 UtilsGrid="*res://Scenes/Global/UtilsGrid.gd"
 UtilsPackman="*res://Scenes/Global/UtilsPackman.gd"
 UtilsGhosts="*res://Scenes/Global/UtilsGhosts.gd"
+FxManager="*res://Scenes/Global/FXManager.tscn"
 
 [debug]
 
 gdscript/warnings/integer_division=0
+
+[display]
+
+window/size/mode=3
 
 [input]
 
@@ -51,5 +56,10 @@ toggle_camera={
 look_back={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":119,"location":0,"echo":false,"script":null)
+]
+}
+ui_fullscreen={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194342,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }

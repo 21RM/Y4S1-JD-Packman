@@ -2,6 +2,7 @@ extends Node3D
 
 @export_category("Scenes")
 @export var wall_scene: PackedScene
+@export var door_scene: PackedScene
 @export var ghost_scene: PackedScene
 @export var dot_scene: PackedScene
 @export var energizer_scene: PackedScene
@@ -11,6 +12,7 @@ extends Node3D
 
 @export_category("Enemies")
 @export var ghosts_height: float = 1.0
+
 var ghosts_spawn: Vector3 = Vector3.ZERO
 var prob_scatter: float = 0.10
 var prob_chase: float = 0.10
@@ -20,6 +22,10 @@ var prob_max: float = 0.95
 var min_time_scatter: float = 10.0
 var min_time_chase: float = 15.0
 var time_elapsed: float = 0.0
+var ghost_time_elapsed: float = 0.0
+var flicker_started: bool = false
+const FLICKER_THRESHOLD: float = 5.0
+var fov_tween: Tween
 
 var energizer_cells = [
 	Vector2i(1, 1),
@@ -31,8 +37,13 @@ var energizer_cells = [
 
 var rng: RandomNumberGenerator
 
+var game_over_scene: PackedScene = preload("res://Scenes/UI/GameOver/game_over_menu.tscn")
+
 
 func _ready() -> void:
+	
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	
 	rng = RandomNumberGenerator.new()
 	if game_seed == 0:
 		rng.randomize()
@@ -47,10 +58,31 @@ func _ready() -> void:
 	instantiate_dots()
 	position_player()
 	
+	#Ghost Spawn Door
+	var door_inst: StaticBody3D = door_scene.instantiate()
+	door_inst.color_id = 1
+	add_child(door_inst)
+	door_inst.global_position = UtilsGrid.cell_to_world(UtilsGrid.get_door_cell(UtilsGrid.ghosts_spawn))
+	
 	for energizer in get_tree().get_nodes_in_group("energizers"):
 		energizer.connect("collected", Callable(self, "_on_energizer_collected"))
 	
 	UtilsPackman.packman = $Packman
+	$UI/HPContainer.set_lives($Packman.lifes)
+	
+	# Music
+	FxManager.play_ambient()
+
+
+func _process(_delta: float) -> void:
+	if $UI/TimerContainer.visible:
+		$UI/TimerContainer/RevengeTimer/Time.text = "00 : " + str(int($Timers/FrightenedTimer.time_left))
+	
+	if !flicker_started and $Timers/FrightenedTimer.time_left > 0.0 and $Timers/FrightenedTimer.time_left <= FLICKER_THRESHOLD:
+		flicker_started = true
+		for ghost in $Ghosts.get_children():
+			ghost.start_frightened_flicker()
+
 
 func _on_cell_changed():
 	instantiate_walls()
@@ -125,25 +157,26 @@ func instantiate_energizers() -> void:
 
 
 func instantiate_ghosts() -> void:
-	if time_elapsed >= 0.0 and $Ghosts.get_child_count() == 0:
+	
+	if ghost_time_elapsed >= 0.0 and $Ghosts.get_child_count() == 0:
 		var blinky: Ghost = ghost_scene.instantiate()
 		blinky.set_ghost_type(1)
 		UtilsGhosts.Blinky = blinky
 		$Ghosts.add_child(blinky)
 		blinky.global_position = ghosts_spawn
-	if time_elapsed >= 5.0 and $Ghosts.get_child_count() == 1:
+	if ghost_time_elapsed >= 5.0 and $Ghosts.get_child_count() == 1:
 		var pinky: Ghost = ghost_scene.instantiate()
 		pinky.set_ghost_type(2)
 		UtilsGhosts.Pinky = pinky
 		$Ghosts.add_child(pinky)
 		pinky.global_position = ghosts_spawn
-	if time_elapsed >= 10.0 and $Ghosts.get_child_count() == 2:
+	if ghost_time_elapsed >= 10.0 and $Ghosts.get_child_count() == 2:
 		var inky: Ghost = ghost_scene.instantiate()
 		inky.set_ghost_type(3)
 		UtilsGhosts.Inky = inky
 		$Ghosts.add_child(inky)
 		inky.global_position = ghosts_spawn
-	if time_elapsed >= 15.0 and $Ghosts.get_child_count() == 3:
+	if ghost_time_elapsed >= 15.0 and $Ghosts.get_child_count() == 3:
 		var clyde: Ghost = ghost_scene.instantiate()
 		clyde.set_ghost_type(4)
 		UtilsGhosts.Clyde = clyde
@@ -152,6 +185,8 @@ func instantiate_ghosts() -> void:
 
 
 func position_player() -> void:
+	for child in $Door.get_children():
+		child.queue_free()
 	var spawn_cell: Vector2i = UtilsGrid.player_spawn.position + UtilsGrid.player_spawn.size/2
 	$Packman.global_position = UtilsGrid.cell_to_world(spawn_cell)
 
@@ -159,10 +194,28 @@ func get_ghosts_spawn() -> Vector3:
 	var spawn_cell: Vector2i = UtilsGrid.ghosts_spawn.position + UtilsGrid.ghosts_spawn.size/2
 	return Vector3(UtilsGrid.cell_to_world(spawn_cell).x, ghosts_height, UtilsGrid.cell_to_world(spawn_cell).z)
 
-func _on_energizer_collected(duration: float):
-	print("ENERGIZER COLLECTED")
+func _on_energizer_collected():
 	for ghost in $Ghosts.get_children():
-		ghost.become_frightened(duration)
+		ghost.become_frightened()
+	$Timers/FrightenedTimer.start()
+	flicker_started = false
+	$UI/TimerContainer.visible = true
+	$ScreenEffects/ColorRect/ScreenAnimations.play("HuntingRed")
+	FxManager.enter_energy()
+	fov_tween = create_tween()
+	fov_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	fov_tween.tween_property($Packman/Camera, "fov", 120, 0.6)
+
+func _on_frightened_timer_timeout() -> void:
+	for ghost in $Ghosts.get_children():
+		ghost.frightened_timer_timeout()
+	
+	$UI/TimerContainer.visible = false
+	$ScreenEffects/ColorRect/ScreenAnimations.play("ResetTexture")
+	FxManager.exit_energy()
+	fov_tween = create_tween()
+	fov_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	fov_tween.tween_property($Packman/Camera, "fov", 100, 0.6)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_released("toggle_camera"):
@@ -170,10 +223,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			$Packman.activate_camera()
 		else:
 			$WorldCamera.current = true
+	if Input.is_action_just_pressed("ui_fullscreen"):
+		var w: Window = get_window()
+		w.mode = Window.MODE_WINDOWED if w.mode == Window.MODE_FULLSCREEN else Window.MODE_FULLSCREEN
 
 
 func _on_game_tick() -> void:
-	time_elapsed += $GameTicker.wait_time
+	time_elapsed += $Timers/GameTicker.wait_time
+	ghost_time_elapsed += $Timers/GameTicker.wait_time
 	instantiate_ghosts()
 	var base_prob_scatter: float = clamp(prob_scatter - change_chase_bias * time_elapsed, prob_min, prob_max)
 	var base_prob_chase: float = clamp(prob_chase + change_chase_bias * time_elapsed, prob_min, prob_max)
@@ -182,7 +239,7 @@ func _on_game_tick() -> void:
 		base_prob_scatter /= sum_prob
 		base_prob_chase /= sum_prob
 	for ghost in $Ghosts.get_children():
-		ghost.time_in_mode += $GameTicker.wait_time
+		ghost.time_in_mode += $Timers/GameTicker.wait_time
 		match ghost.state:
 			Ghost.GhostState.SCATTER:
 				if ghost.time_in_mode >= min_time_scatter and randf() < base_prob_chase:
@@ -194,3 +251,51 @@ func _on_game_tick() -> void:
 					ghost.state = Ghost.GhostState.SCATTER
 					ghost.changed_state()
 					ghost.time_in_mode = 0.0
+
+
+func _on_packman_deadly_ghost_touched_me() -> void:
+	for ghost in $Ghosts.get_children():
+		ghost.speed = 0
+		ghost.state = Ghost.GhostState.JUMPSCARING
+	$ScreenEffects/ColorRect/ScreenAnimations.play("jumpscare_black")
+	$Timers/JumpscareTimer.start()
+	FxManager.play_jumpscare()
+	FxManager.stop_ambient()
+	FxManager.exit_energy()
+	
+	$UI/TimerContainer.visible = false
+	$ScreenEffects/ColorRect/ScreenAnimations.play("ResetTexture")
+	FxManager.exit_energy()
+	$Packman/Camera.fov = 100
+
+
+
+func _on_jumpscare_timer_timeout() -> void:
+	$ScreenEffects/ColorRect/ScreenAnimations.stop()
+	$ScreenEffects/ColorRect/ScreenAnimations.play("transition_black")
+	$Timers/EndOfJumpscareTimer.start()
+
+
+func _on_end_of_jumpscare_timer_timeout() -> void:
+	position_player()
+	$Packman.reset_player()
+	for ghost in $Ghosts.get_children():
+		ghost.free()
+	ghost_time_elapsed = 0.0
+	$Packman.lifes -= 1
+	if $Packman.lifes == 0:
+		FxManager.stop_ambient()
+		get_tree().change_scene_to_packed(game_over_scene)
+	else:
+		$UI/HPContainer.set_lives($Packman.lifes)
+		FxManager.play_ambient()
+
+
+func _on_packman_close_spawn_room_door() -> void:
+	var door_inst: StaticBody3D = door_scene.instantiate()
+	$Door.add_child(door_inst)
+	door_inst.global_position = UtilsGrid.cell_to_world(UtilsGrid.get_door_cell(UtilsGrid.player_spawn))
+
+
+func _on_dots_update_dot_count(n: int) -> void:
+	$UI/DotsRemaining/HBoxContainer/DotNumber.text = str(n)

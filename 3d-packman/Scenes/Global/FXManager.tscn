@@ -1,0 +1,66 @@
+[gd_scene load_steps=12 format=3 uid="uid://2fcyvpuh801n"]
+
+[ext_resource type="Script" uid="uid://credjkv7kfh24" path="res://Scenes/Global/FXManager.gd" id="1_580xe"]
+[ext_resource type="AudioStream" uid="uid://du365i3unoxnj" path="res://Audio/Game/pacman_chomp.wav" id="2_gp484"]
+[ext_resource type="AudioStream" uid="uid://bg6md1df5guis" path="res://Audio/Game/ambient_music.mp3" id="3_gp484"]
+[ext_resource type="AudioStream" uid="uid://eveo2qc8hum4" path="res://Audio/Game/pacman_death.wav" id="4_3wi5m"]
+[ext_resource type="AudioStream" uid="uid://bkrg4h64tducp" path="res://Audio/Game/heartbeat.mp3" id="4_nuoy3"]
+[ext_resource type="AudioStream" uid="uid://cequpppnu1a3m" path="res://Audio/UI/laughs.mp3" id="5_go42p"]
+[ext_resource type="AudioStream" uid="uid://clrr1dgpt4mwa" path="res://Audio/UI/button-houver.mp3" id="5_ic871"]
+[ext_resource type="AudioStream" uid="uid://bspdmp405opap" path="res://Audio/Game/energizer_collected.mp3" id="5_odr4u"]
+[ext_resource type="AudioStream" uid="uid://b323xqralviqe" path="res://Audio/UI/button-houver_exit.mp3" id="6_akcx2"]
+[ext_resource type="AudioStream" uid="uid://bybpsc224c2se" path="res://Audio/Game/ghost_eaten.mp3" id="6_mnjhf"]
+[ext_resource type="AudioStream" uid="uid://cplddbxt4sypo" path="res://Audio/UI/button_press.mp3" id="7_t64sj"]
+
+[node name="FXManager" type="Node"]
+script = ExtResource("1_580xe")
+dot_sound = ExtResource("2_gp484")
+
+[node name="Ambient" type="Node" parent="."]
+
+[node name="ScaryTheme" type="AudioStreamPlayer" parent="Ambient"]
+stream = ExtResource("3_gp484")
+parameters/looping = true
+
+[node name="HeartBeat" type="AudioStreamPlayer" parent="Ambient"]
+stream = ExtResource("4_nuoy3")
+volume_db = -60.0
+pitch_scale = 1.7
+parameters/looping = true
+
+[node name="Energizer" type="Node" parent="."]
+
+[node name="Collected" type="AudioStreamPlayer" parent="Energizer"]
+stream = ExtResource("5_odr4u")
+
+[node name="Dots" type="Node" parent="."]
+
+[node name="Ghosts" type="Node" parent="."]
+
+[node name="GhostEaten" type="AudioStreamPlayer" parent="Ghosts"]
+stream = ExtResource("6_mnjhf")
+
+[node name="Jumpscare" type="Node" parent="."]
+
+[node name="JumpscareSound" type="AudioStreamPlayer3D" parent="Jumpscare"]
+stream = ExtResource("4_3wi5m")
+
+[node name="UI" type="Node" parent="."]
+
+[node name="Laughs" type="AudioStreamPlayer" parent="UI"]
+stream = ExtResource("5_go42p")
+volume_db = -10.0
+parameters/looping = true
+
+[node name="Button" type="Node" parent="UI"]
+
+[node name="HouverSound" type="AudioStreamPlayer" parent="UI/Button"]
+stream = ExtResource("5_ic871")
+volume_db = -5.0
+
+[node name="HouverExitSound" type="AudioStreamPlayer" parent="UI/Button"]
+stream = ExtResource("6_akcx2")
+volume_db = -15.0
+
+[node name="Press" type="AudioStreamPlayer" parent="UI/Button"]
+stream = ExtResource("7_t64sj")

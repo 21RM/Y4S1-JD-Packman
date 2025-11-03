@@ -2,12 +2,12 @@ extends Area3D
 class_name Ghost
 
 var ghost_type: int = 0
-enum GhostState { SCATTER, CHASE, FRIGHTENED, EATEN }
+enum GhostState { SCATTER, CHASE, FRIGHTENED, EATEN, JUMPSCARING}
 
 var state: GhostState = GhostState.SCATTER
 var time_in_mode: float = 0.0
 
-const base_speed: float = 2.5
+const base_speed: float = 2.7
 var speed: float = base_speed
 var rotation_speed: float = 5.0
 var float_t: float = 0
@@ -21,82 +21,121 @@ var dir: Vector2i = Vector2i(0, -1)
 const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.LEFT, Vector2i.DOWN, Vector2i.RIGHT]
 var current_cell: Vector2i
 var next_cell: Vector2i
+var face_override: bool = false
+var face_yaw: float = 0.0
 
 
 @export var blinky_model: PackedScene
 @export var pinky_model: PackedScene
 @export var inky_model: PackedScene
 @export var clyde_model: PackedScene
+@export var scared1_model: PackedScene
+@export var scared2_model: PackedScene
+var ghost_model: Node3D
+var frightened_model1: Node3D = null
+var frightened_model2: Node3D = null
+var flicker: bool = false
 
 
-func become_frightened(duration: float):
-	match ghost_type:
-		1:
-			print("Blinky frightened!")
-		2:
-			print("Pinky frightened!")
-		3:
-			print("Inky frightened!")
-		4:
-			print("Clyde frightened!")
-	
+
+func become_frightened() -> void:
 	if state == GhostState.EATEN:
 		return
 	state = GhostState.FRIGHTENED
-	speed = base_speed * 0.7
+	speed = base_speed * 0.5
 	dir = -dir
-	$FrightenedTimer.start(duration)
+	set_frightened_appearance(true)
 
-func _on_frightened_timer_timeout() -> void:
-	state = GhostState.CHASE
-	speed = base_speed
-	_set_frightened_appearance(false)
+func frightened_timer_timeout() -> void:
+	dir = -dir
+	if state == GhostState.FRIGHTENED:
+		state = GhostState.CHASE
+		speed = base_speed
+	set_frightened_appearance(false)
 
-func _set_frightened_appearance(frightened: bool):
-	var mesh = get_node_or_null("MeshInstance3D")
-	if mesh and mesh.material_override:
-		var mat := mesh.material_override as StandardMaterial3D
-		if frightened:
-			mat.albedo_color = Color(0.2, 0.2, 1.0)
-			mat.emission_enabled = true
-			mat.emission = Color(0.2, 0.2, 1.0)
-		else:
-			mat.albedo_color = Color(1, 1, 1)
-			mat.emission_enabled = false
+func set_frightened_appearance(frightened: bool):
+	if frightened:
+		flicker = false
+		$FlickerTimer.wait_time = 0.4
+		frightened_model1.visible = true
+		frightened_model2.visible = false
+		ghost_model.visible = false
+		$OmniLights/GhostModel.visible = false
+		$OmniLights/FrightenedModel1.visible = true
+		$OmniLights/FrightenedModel2.visible = false
+	elif state != GhostState.EATEN:
+		flicker = false
+		frightened_model1.visible = false
+		frightened_model2.visible = false
+		$OmniLights/GhostModel.visible = true
+		$OmniLights/FrightenedModel1.visible = false
+		$OmniLights/FrightenedModel2.visible = false
+		ghost_model.visible = true
 
+func start_frightened_flicker() -> void:
+	if state == GhostState.FRIGHTENED:
+		flicker = true
+		$FlickerTimer.start()
+
+func _on_flicker_timer_timeout() -> void:
+	if flicker:
+		if frightened_model1.visible == true:
+			frightened_model1.visible = false
+			frightened_model2.visible = true
+			$OmniLights/FrightenedModel1.visible = false
+			$OmniLights/FrightenedModel2.visible = true
+		elif frightened_model2.visible == true:
+			frightened_model1.visible = true
+			frightened_model2.visible = false
+			$OmniLights/FrightenedModel1.visible = true
+			$OmniLights/FrightenedModel2.visible = false
+		if $FlickerTimer.wait_time > 0.5:
+			$FlickerTimer.wait_time -= 0.015
+		$FlickerTimer.start()
 
 func set_ghost_type(type: int) -> void:
 	ghost_type = type
-	var ghost_model: Node3D
 	match ghost_type:
 		1:
 			ghost_model = blinky_model.instantiate()
-			$OmniLight3D.light_color = Color(1, 0, 0)
+			$OmniLights/GhostModel.light_color = Color(1, 0, 0)
 		2:
 			ghost_model = pinky_model.instantiate()
-			$OmniLight3D.light_color = Color(1, 0.75, 1)
+			$OmniLights/GhostModel.light_color = Color(1, 0.0, 0.5)
 		3:
 			ghost_model = inky_model.instantiate()
-			$OmniLight3D.light_color = Color(0, 1, 1)
+			$OmniLights/GhostModel.light_color = Color(0, 1, 1)
 		4:
 			ghost_model = clyde_model.instantiate()
-			$OmniLight3D.light_color = Color(1, 0.75, 0.25)
+			$OmniLights/GhostModel.light_color = Color(1, 0.75, 0.25)
 	ghost_model.scale = Vector3(0.45, 0.45, 0.45)
 	add_child(ghost_model)
-	
 	set_cast_shadows_rec(ghost_model, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	
+	frightened_model1 = scared1_model.instantiate()
+	add_child(frightened_model1)
+	set_cast_shadows_rec(frightened_model1, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	frightened_model1.transform = ghost_model.transform
+	frightened_model1.visible = false
+	
+	frightened_model2 = scared2_model.instantiate()
+	add_child(frightened_model2)
+	set_cast_shadows_rec(frightened_model2, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF)
+	frightened_model2.transform = ghost_model.transform
+	frightened_model2.visible = false
 
 func _physics_process(delta: float) -> void:
 	float_t += delta
 	current_cell = UtilsGrid.world_to_cell(global_position)
-	var target_cell: Vector2i = compute_target_cell()
-	var current_center: Vector3 = UtilsGrid.cell_to_world(current_cell)
-	var at_center: bool = Vector2(global_position.x - current_center.x, global_position.z - current_center.z).length() <= center_snap_eps
-	if at_center or next_cell == Vector2i.ZERO:
-		next_cell = calculate_next_cell(target_cell)
-	
-	move_to_next_cell(delta)
-	var target_yaw: float = atan2(-dir.x, -dir.y)
+	if state != GhostState.JUMPSCARING:
+		var target_cell: Vector2i = compute_target_cell()
+		var current_center: Vector3 = UtilsGrid.cell_to_world(current_cell)
+		var at_center: bool = Vector2(global_position.x - current_center.x, global_position.z - current_center.z).length() <= center_snap_eps
+		if at_center or next_cell == Vector2i.ZERO:
+			next_cell = calculate_next_cell(target_cell)
+		move_to_next_cell(delta)
+	var base_yaw: float = atan2(-dir.x, -dir.y)
+	var target_yaw: float = face_yaw if face_override else base_yaw
 	rotation.y = lerp_angle(rotation.y, target_yaw - PI/2, rotation_speed*delta)
 	
 	# Vertical movement
@@ -205,13 +244,39 @@ func get_corner_cell() -> Vector2i:
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.name == "Packman":
-		print("U died noob")
+		if state == GhostState.FRIGHTENED:
+			$DeathParticles.emitting = true
+			state = GhostState.EATEN
+			frightened_model1.visible = false
+			frightened_model2.visible = false
+			ghost_model.visible = false
+			$OmniLights.visible = false
+			$DeadTimer.start()
+			FxManager.play_ghost_eaten()
+		elif state == GhostState.CHASE or state == GhostState.SCATTER:
+			UtilsPackman.packman.ghost_made_bad_contact(self)
 
 
 func set_cast_shadows_rec(node: Node, mode: int) -> void:
 	for c in node.get_children():
 		if c is GeometryInstance3D:
 			c.cast_shadow = mode
+
+func get_jumpscare_camera_position() -> Vector3:
+	return $JumpscareMarker.global_position
+
+func _on_dead_timer_timeout() -> void:
+	state = GhostState.CHASE
+	speed = base_speed
+	var spawn_cell: Vector2i = UtilsGrid.ghosts_spawn.position + UtilsGrid.ghosts_spawn.size/2
+	global_position = Vector3(UtilsGrid.cell_to_world(spawn_cell).x, 1.0, UtilsGrid.cell_to_world(spawn_cell).z)
+	ghost_model.visible = true
+	$OmniLights.visible = true
+	$OmniLights/GhostModel.visible = true
+	$OmniLights/FrightenedModel1.visible = false
+	$OmniLights/FrightenedModel2.visible = false
+	
+	$FlickerTimer.wait_time = 0.4
 
 #================= FUNCTIONS NOT USED NOW BUT MAY BE USED LATER =================#
 

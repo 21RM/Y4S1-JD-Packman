@@ -1,13 +1,15 @@
 extends Area3D
 
-signal collected(duration: float)
-
-@export var duration := 8.0  # seconds ghosts stay frightened
+signal collected()
 
 func _ready():
 	connect("body_entered", _on_body_entered)
+	for c in $Energizer.get_children():
+		if c is GeometryInstance3D:
+			c.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.name == "Packman":
-		collected.emit(duration)
+		FxManager.play_energizer_collected()
+		collected.emit()
 		queue_free()

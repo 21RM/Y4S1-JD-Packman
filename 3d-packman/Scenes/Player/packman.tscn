@@ -1,20 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://bx30jfr23jsnd"]
+[gd_scene load_steps=6 format=3 uid="uid://bx30jfr23jsnd"]
 
 [ext_resource type="Script" uid="uid://h7v7qnvnf582" path="res://Scenes/Player/packman.gd" id="1_jn0p0"]
+[ext_resource type="Script" uid="uid://46f7pm5yb5x8" path="res://Scenes/Player/camera.gd" id="2_h277g"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jn0p0"]
 albedo_color = Color(1, 1, 0, 1)
+emission_enabled = true
+emission = Color(1, 1, 0, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_8xp7a"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_jn0p0"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h277g"]
-albedo_color = Color(0, 0.7647059, 1, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_niiq6"]
-radius = 0.4
-height = 0.631
 
 [node name="Packman" type="CharacterBody3D"]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0)
@@ -30,11 +26,10 @@ shape = SubResource("CapsuleShape3D_jn0p0")
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47, 0)
 fov = 100.0
+script = ExtResource("2_h277g")
 
-[node name="Head" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.22)
-material_override = SubResource("StandardMaterial3D_h277g")
-mesh = SubResource("SphereMesh_niiq6")
+[node name="ShakeTimer" type="Timer" parent="Camera"]
+one_shot = true
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 light_color = Color(0.9237858, 0.9505798, 0.7212385, 1)
@@ -42,5 +37,4 @@ light_energy = 0.5
 light_specular = 0.0
 omni_range = 4.0
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)
+[connection signal="timeout" from="Camera/ShakeTimer" to="Camera" method="_on_shake_timer_timeout"]

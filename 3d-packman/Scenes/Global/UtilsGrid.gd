@@ -3,12 +3,12 @@ extends Node
 var grid: PackedByteArray
 var grid_origin: Vector3
 var cell_size: float = 1.0
-var grid_size_x: int = 35
-var grid_size_z: int = 35
+var grid_size_x: int = 25
+var grid_size_z: int = 25
 
-var player_spawn: Rect2i = Rect2i(15, 8, 5, 5)
-var ghosts_spawn: Rect2i = Rect2i(15, 25, 5, 5)
-var ghost_spawn_room_door: Vector2i = Vector2i.ZERO
+var player_spawn: Rect2i = Rect2i(13, 8, 5, 5)
+var ghosts_spawn: Rect2i = Rect2i(13, 20, 5, 5)
+var ghost_spawn_room_door: Vector2i = Vector2i.ZERO	
 
 var wall_density: float = 0.7
 
@@ -56,6 +56,14 @@ func is_in_spawn_room(cell: Vector2i) -> bool:
 		if room.has_point(cell):
 			return true
 	return false
+
+
+func get_door_cell(rect: Rect2i) -> Vector2i:
+	var px: int = rect.position.x
+	var pz: int = rect.position.y
+	var sx: int = rect.size.x
+	return Vector2i(px+sx/2, pz)
+
 
 func can_walk_to_neighbor_cell(current_cell: Vector2i, target_cell: Vector2i) -> bool:
 	if !cell_walkable(target_cell):
@@ -113,7 +121,6 @@ func start_grid() -> void:
 
 func carve_connectivity(rng: RandomNumberGenerator) -> void:
 	var start: Vector2i = pick_random_odd_cell(rng)
-	start= Vector2i(33, 23)
 	if start == Vector2i(-1, -1):
 		return
 	
