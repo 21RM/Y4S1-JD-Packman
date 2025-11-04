@@ -137,6 +137,20 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
+[node name="HBoxContainer4" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 50
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_o53sk")
+text = "Dinis  Galvão - up202207217"
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_o53sk")
+text = "Gonçalo Carvalho - up202204873"
+
 [node name="Spacer2" type="Control" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3

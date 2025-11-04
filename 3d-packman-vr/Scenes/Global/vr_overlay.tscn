@@ -10,7 +10,6 @@ shader_parameter/mirror_each = false
 
 [node name="VROverlay" type="CanvasLayer"]
 layer = 999
-visible = false
 script = ExtResource("1_ik31e")
 
 [node name="ColorRect" type="ColorRect" parent="."]

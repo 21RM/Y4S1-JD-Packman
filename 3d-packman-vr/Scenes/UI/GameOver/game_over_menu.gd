@@ -1,13 +1,14 @@
 extends CanvasLayer
 
+@onready var first_option: Button = $HBoxContainer/VBoxContainer/HBoxContainer2/TryAgain
 
 
 func _ready() -> void:
 	FxManager.play_laughs()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	fit_emitter()
+	first_option.grab_focus()
 
-	
 func fit_emitter() -> void:
 	var vp: Vector2 = get_window().size
 	$ColorRect/Control/BlinkyEmitter.process_material.emission_box_extents = Vector3(vp.x, 0, 0)

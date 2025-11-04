@@ -123,6 +123,7 @@ size_flags_vertical = 3
 
 [node name="Exit" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
+focus_neighbor_top = NodePath("../../HBoxContainer2/Play")
 theme = ExtResource("2_tik7u")
 theme_override_font_sizes/font_size = 25
 text = "EXIT"

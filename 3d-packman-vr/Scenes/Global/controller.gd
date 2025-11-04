@@ -1,9 +1,5 @@
 extends Node
 
-func _ready():
-	print("Joypads:", Input.get_connected_joypads())
-	Input.joy_connection_changed.connect(func(id, connected, _name): print("Joy:", id, connected, _name))
-
 func _unhandled_input(e):
 	if e is InputEventJoypadButton and e.pressed:
 		print("JOY BUTTON:", e.button_index)

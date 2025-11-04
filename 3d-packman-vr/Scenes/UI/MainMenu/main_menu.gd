@@ -2,6 +2,8 @@ extends CanvasLayer
 
 
 var rng: RandomNumberGenerator
+@onready var first_option: Button = $HBoxContainer/VBoxContainer/HBoxContainer2/Play
+
 
 func _ready() -> void:
 	rng = RandomNumberGenerator.new()
@@ -11,7 +13,7 @@ func _ready() -> void:
 	FxManager.play_crickets()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	fit_emitter()
-
+	first_option.grab_focus()
 	
 func fit_emitter() -> void:
 	var vp: Vector2 = get_window().size
